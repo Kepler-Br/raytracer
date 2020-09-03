@@ -19,7 +19,7 @@ typedef struct s_shape_plane
     t_vec3 position;
     t_vec3 normal;
 
-
+    t_ivec3 color;
 } t_shape_plane;
 
 t_shape *construct_shape_plane(t_vec3 position, t_vec3 normal);

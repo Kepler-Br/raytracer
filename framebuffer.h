@@ -20,6 +20,7 @@ typedef struct s_framebuffer
     void (*destroy)(struct s_framebuffer *this);
     void (*put)(struct s_framebuffer *this);
     uint32_t *(*get_pixel)(struct s_framebuffer *this, t_ivec2 position);
+    void (*set_pixel)(struct s_framebuffer *this, t_ivec2 position, t_vec3 color);
 
 } t_framebuffer;
 

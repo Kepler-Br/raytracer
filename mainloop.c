@@ -91,13 +91,15 @@ static void render(t_mainloop *this)
             t_ray ray = this->camera->make_ray(this->camera, &screen_coord);
             t_intersection intersection = construct_intersection(ray);
             if(plane->intersect(plane, &intersection))
-                *pixel = 0xFFFFFF;
+//            if(plane->does_intersect(plane, &ray))
+//                *pixel = 0xFF00FF;
+                this->framebuffer->set_pixel(this->framebuffer, (t_ivec2){{x, y}}, (t_vec3){{0.0f, 1.0f, 0.0f}});
             else
                 *pixel = 0x0;
 //            *pixel = 0xFF00FF;
         }
     }
-
+    destroy_shape_plane(plane);
 //    for(int i = 0; i < (int)this->framebuffer->pixel_count; i++)
 //        if(i%1 == 0)
 //            this->framebuffer->pixels[i] = rand()%0xFFFFFF;
@@ -160,6 +162,6 @@ t_mainloop *construct_mainloop(t_ivec2 resolution, const char * const title)
     this->check_timer = construct_check_timer();
     this->sdl_instance = construct_sdl_instance(resolution, title);
     this->framebuffer = construct_framebuffer(resolution, this->sdl_instance);
-    this->camera = construct_camera((t_vec3){{1.0f, 5.0f, 2.0f}}, (t_vec3){{0.0f, 0.0f, 0.0f}}, (t_vec3){{0.0f, 1.0f, 0.0f}}, M_PI/4.0f, this->framebuffer->resolution.x/this->framebuffer->resolution.y);
+    this->camera = construct_camera((t_vec3){{-5.0f, 1.0f, 0.0f}}, (t_vec3){{0.0f, 1.0f, 0.0f}}, (t_vec3){{0.0f, -1.0f, 0.0f}}, M_PI/4.0f, this->framebuffer->resolution.x/this->framebuffer->resolution.y);
     return (this);
 }

@@ -72,6 +72,21 @@ uint32_t *get_pixel(struct s_framebuffer *this, t_ivec2 position)
     return &this->pixels[index];
 }
 
+void set_pixel(struct s_framebuffer *this, t_ivec2 position, t_vec3 color)
+{
+    static size_t index;
+
+    SDL_assert(position.x < this->resolution.x);
+    SDL_assert(position.y < this->resolution.y);
+    SDL_assert(position.x >= 0);
+    SDL_assert(position.y >= 0);
+    index = position.y * this->resolution.x + position.x;
+    this->pixels[index] = 0x0;
+    this->pixels[index] = (int)(color.x*255.0f)%256 << 16;
+    this->pixels[index] |= (int)(color.y*255.0f)%256 << 8;
+    this->pixels[index] |= (int)(color.z*255.0f)%256;
+}
+
 t_framebuffer *construct_framebuffer(const t_ivec2 resolution, t_sdl_instance *sdl_instance)
 {
     t_framebuffer *this;
@@ -87,6 +102,7 @@ t_framebuffer *construct_framebuffer(const t_ivec2 resolution, t_sdl_instance *s
     this->destroy = &destroy;
     this->put = &put;
     this->get_pixel = &get_pixel;
+    this->set_pixel = &set_pixel;
 
     this->init(this, resolution);
     return (this);
