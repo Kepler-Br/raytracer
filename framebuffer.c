@@ -59,6 +59,19 @@ static void put(struct s_framebuffer *this)
     SDL_RenderCopy(this->sdl_instance->renderer, this->framebuffer, NULL, NULL);
 }
 
+uint32_t *get_pixel(struct s_framebuffer *this, t_ivec2 position)
+{
+    static size_t index;
+
+    SDL_assert(position.x < this->resolution.x);
+    SDL_assert(position.y < this->resolution.y);
+    SDL_assert(position.x >= 0);
+    SDL_assert(position.y >= 0);
+
+    index = position.y * this->resolution.x + position.x;
+    return &this->pixels[index];
+}
+
 t_framebuffer *construct_framebuffer(const t_ivec2 resolution, t_sdl_instance *sdl_instance)
 {
     t_framebuffer *this;
@@ -73,6 +86,7 @@ t_framebuffer *construct_framebuffer(const t_ivec2 resolution, t_sdl_instance *s
     this->lock = &lock;
     this->destroy = &destroy;
     this->put = &put;
+    this->get_pixel = &get_pixel;
 
     this->init(this, resolution);
     return (this);

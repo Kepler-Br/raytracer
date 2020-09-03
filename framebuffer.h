@@ -19,6 +19,7 @@ typedef struct s_framebuffer
     void (*unlock)(struct s_framebuffer *this);
     void (*destroy)(struct s_framebuffer *this);
     void (*put)(struct s_framebuffer *this);
+    uint32_t *(*get_pixel)(struct s_framebuffer *this, t_ivec2 position);
 
 } t_framebuffer;
 

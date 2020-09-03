@@ -4,6 +4,7 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
+        camera.c \
         check_timer.c \
         framebuffer.c \
         linear_alg.c \
@@ -14,6 +15,7 @@ SOURCES += \
         shape.c
 
 HEADERS += \
+    camera.h \
     check_timer.h \
     framebuffer.h \
     linear_alg.h \
