@@ -14,7 +14,7 @@ typedef struct s_framebuffer
     size_t pixel_count;
     int is_locked;
 
-    float (*init)(struct s_framebuffer *this, t_ivec2 resolution);
+    void (*init)(struct s_framebuffer *this, t_ivec2 resolution);
     void (*lock)(struct s_framebuffer *this);
     void (*unlock)(struct s_framebuffer *this);
     void (*destroy)(struct s_framebuffer *this);

@@ -1,7 +1,12 @@
 #ifndef VEC_H
 #define VEC_H
 
-#include <CL/cl.h>
+#ifdef __APPLE__
+# include <OpenCL/cl.h>
+#elif __linux__
+# include <CL/cl.h>
+#endif
+
 
 typedef cl_float2 t_vec2;
 typedef cl_float3 t_vec3;
