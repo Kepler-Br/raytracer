@@ -22,6 +22,6 @@ typedef struct s_framebuffer
 
 } t_framebuffer;
 
-t_framebuffer construct_framebuffer(const t_ivec2 resolution, t_sdl_instance *sdl_instance);
+t_framebuffer *construct_framebuffer(const t_ivec2 resolution, t_sdl_instance *sdl_instance);
 
 #endif // FRAMEBUFFER_H

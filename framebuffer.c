@@ -56,25 +56,24 @@ static void put(struct s_framebuffer *this)
         SDL_LogInfo(SDL_LOG_CATEGORY_RENDER, "%s", "Cannot put locked buffer.");
         return;
     }
-    int i = SDL_RenderCopy(this->sdl_instance->renderer, this->framebuffer, NULL, NULL);
-//    printf("%d\n", i);
-//    SDL_LogError(SDL_LOG_CATEGORY_ASSERT, "%s: %s", "Cannot lock framebuffer", SDL_GetError());
+    SDL_RenderCopy(this->sdl_instance->renderer, this->framebuffer, NULL, NULL);
 }
 
-t_framebuffer construct_framebuffer(const t_ivec2 resolution, t_sdl_instance *sdl_instance)
+t_framebuffer *construct_framebuffer(const t_ivec2 resolution, t_sdl_instance *sdl_instance)
 {
-    t_framebuffer this;
+    t_framebuffer *this;
 
-    this.pixels = NULL;
-    this.framebuffer = NULL;
-    this.sdl_instance = sdl_instance;
+    SDL_assert((this = malloc(sizeof(t_framebuffer))) != NULL);
+    this->pixels = NULL;
+    this->framebuffer = NULL;
+    this->sdl_instance = sdl_instance;
 
-    this.init = &init;
-    this.unlock = &unlock;
-    this.lock = &lock;
-    this.destroy = &destroy;
-    this.put = &put;
+    this->init = &init;
+    this->unlock = &unlock;
+    this->lock = &lock;
+    this->destroy = &destroy;
+    this->put = &put;
 
-    this.init(&this, resolution);
+    this->init(this, resolution);
     return (this);
 }

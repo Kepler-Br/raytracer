@@ -7,12 +7,13 @@ static float check(struct s_check_timer *this)
     return (this->time_passed);
 }
 
-t_check_timer construct_check_timer()
+t_check_timer *construct_check_timer()
 {
-    t_check_timer this;
+    t_check_timer *this;
 
-    this.check = &check;
-    this.last_time = SDL_GetTicks();
-    this.time_passed = 0.0f;
+    SDL_assert((this = malloc(sizeof(t_check_timer))) != NULL);
+    this->check = &check;
+    this->last_time = SDL_GetTicks();
+    this->time_passed = 0.0f;
     return (this);
 }

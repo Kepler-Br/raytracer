@@ -12,6 +12,6 @@ typedef struct s_check_timer
     float (*check)(struct s_check_timer *this);
 } t_check_timer;
 
-t_check_timer construct_check_timer();
+t_check_timer *construct_check_timer();
 
 #endif // CHECK_TIMER_H
