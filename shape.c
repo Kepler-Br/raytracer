@@ -21,7 +21,7 @@ int plane_intersect(t_shape *this, t_intersection *intersection)
     pos_sub = vec3_vec3_sub(&str->position, &intersection->ray.origin);
     float point_distance = vec3_vec3_dot(&pos_sub, &str->normal) / dot_normal;
 
-    if (point_distance <= MIN_RAY_DIST || point_distance >= intersection->dist)
+    if (point_distance <= MIN_RAY_DIST || point_distance >= intersection->ray.max_dist)
     {
         // Outside relevant range
         return (0);
@@ -55,7 +55,6 @@ int plane_does_intersect(t_shape *this, t_ray *ray)
         // Outside relevant range
         return (0);
     }
-    printf("OHMY\n");
     return (1);
 }
 
@@ -69,6 +68,7 @@ t_shape *construct_shape_plane(t_vec3 position, t_vec3 normal)
 
     plane->normal = normal;
     plane->position = position;
+    plane->color = (t_ivec3){{1.0f, 0.0f, 1.0f}};
 
     shape->inhereted = (void *)plane;
     shape->intersect = &plane_intersect;
