@@ -1,4 +1,5 @@
 #include "mainloop.h"
+#include "shape.h"
 
 static void run(t_mainloop *this)
 {
@@ -77,9 +78,29 @@ static void prerender(t_mainloop *this)
 
 static void render(t_mainloop *this)
 {
-    for(int i = 0; i < (int)this->framebuffer->pixel_count; i++)
-        if(i%1 == 0)
-            this->framebuffer->pixels[i] = rand()%0xFFFFFF;
+    uint32_t *pixel;
+    t_shape *plane = construct_shape_plane((t_vec3){{0.0f, 0.0f, 0.0f}}, (t_vec3){{0.0f, 1.0f, 0.0f}});
+
+    for(int x = 0; x < this->framebuffer->resolution.x; x++)
+    {
+        for(int y = 0; y < this->framebuffer->resolution.y; y++)
+        {
+            pixel = this->framebuffer->get_pixel(this->framebuffer, (t_ivec2){{x, y}});
+            t_vec2 screen_coord = (t_vec2){{2.0f * x / this->framebuffer->resolution.x - 1.0f,
+                                            2.0f * y / this->framebuffer->resolution.y - 1.0f}};
+            t_ray ray = this->camera->make_ray(this->camera, &screen_coord);
+            t_intersection intersection = construct_intersection(ray);
+            if(plane->intersect(plane, &intersection))
+                *pixel = 0xFFFFFF;
+            else
+                *pixel = 0x0;
+//            *pixel = 0xFF00FF;
+        }
+    }
+
+//    for(int i = 0; i < (int)this->framebuffer->pixel_count; i++)
+//        if(i%1 == 0)
+//            this->framebuffer->pixels[i] = rand()%0xFFFFFF;
 }
 
 static void postrender(t_mainloop *this)
@@ -119,6 +140,7 @@ t_mainloop *construct_mainloop(t_ivec2 resolution, const char * const title)
     t_mainloop *this;
 
     SDL_assert((this = malloc(sizeof(t_mainloop))) != NULL);
+
     this->run = &run;
     this->calc_deltatime = &calc_deltatime;
     this->update = &update;
@@ -134,8 +156,10 @@ t_mainloop *construct_mainloop(t_ivec2 resolution, const char * const title)
     this->deltatime = 1.0f;
     this->frame_count = 0;
     this->max_fps = 60;
+
     this->check_timer = construct_check_timer();
     this->sdl_instance = construct_sdl_instance(resolution, title);
     this->framebuffer = construct_framebuffer(resolution, this->sdl_instance);
+    this->camera = construct_camera((t_vec3){{1.0f, 5.0f, 2.0f}}, (t_vec3){{0.0f, 0.0f, 0.0f}}, (t_vec3){{0.0f, 1.0f, 0.0f}}, M_PI/4.0f, this->framebuffer->resolution.x/this->framebuffer->resolution.y);
     return (this);
 }

@@ -55,10 +55,11 @@ int plane_does_intersect(t_shape *this, t_ray *ray)
         // Outside relevant range
         return (0);
     }
+    printf("OHMY\n");
     return (1);
 }
 
-t_shape *make_shape_plane(t_vec3 position, t_vec3 normal)
+t_shape *construct_shape_plane(t_vec3 position, t_vec3 normal)
 {
     t_shape *shape;
     t_shape_plane *plane;
@@ -73,4 +74,10 @@ t_shape *make_shape_plane(t_vec3 position, t_vec3 normal)
     shape->intersect = &plane_intersect;
     shape->does_intersect = &plane_does_intersect;
     return (shape);
+}
+
+t_shape *destroy_shape_plane(t_shape *shape)
+{
+    free(shape->inhereted);
+    free(shape);
 }
