@@ -4,4 +4,10 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
-        main.c
+        linear_alg.c \
+        main.c \
+        mainloop.c
+
+HEADERS += \
+    linear_alg.h \
+    mainloop.h
