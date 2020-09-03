@@ -11,6 +11,20 @@ typedef cl_int3 t_ivec3;
 typedef cl_int4 t_ivec4;
 typedef cl_float16 t_mat4;
 
+t_ivec2 ivec2_ivec2_sum(const t_ivec2 * const a, const t_ivec2 * const b);
+t_ivec2 ivec2_ivec2_sub(const t_ivec2 * const a, const t_ivec2 * const b);
+t_ivec2 ivec2_scalar_sum(const t_ivec2 * const a, const float * const b);
+t_ivec2 ivec2_scalar_sub(const t_ivec2 * const a, const float * const b);
+t_ivec2 ivec2_scalar_mul(const t_ivec2 * const a, const float * const b);
+t_ivec2 ivec2_scalar_div(const t_ivec2 * const a, const float * const b);
+
+void ivec2_ivec2_sum_ptr(t_ivec2 * const a, const t_ivec2 * const b);
+void ivec2_ivec2_sub_ptr(t_ivec2 * const a, const t_ivec2 * const b);
+void ivec2_scalar_sum_ptr(t_ivec2 * const a, const float * const b);
+void ivec2_scalar_sub_ptr(t_ivec2 * const a, const float * const b);
+void ivec2_scalar_mul_ptr(t_ivec2 * const a, const float * const b);
+void ivec2_scalar_div_ptr(t_ivec2 * const a, const float * const b);
+
 t_vec2 vec2_vec2_sum(const t_vec2 * const a, const t_vec2 * const b);
 t_vec2 vec2_vec2_sub(const t_vec2 * const a, const t_vec2 * const b);
 float vec2_vec2_dot(const t_vec2 * const a, const t_vec2 * const b);
@@ -21,7 +35,6 @@ t_vec2 vec2_scalar_mul(const t_vec2 * const a, const float * const b);
 t_vec2 vec2_scalar_sum(const t_vec2 * const a, const float * const b);
 t_vec2 vec2_scalar_sub(const t_vec2 * const a, const float * const b);
 t_vec2 vec2_scalar_div(const t_vec2 * const a, const float * const b);
-
 
 t_vec3 vec3_vec3_sum(const t_vec3 * const a, const t_vec3 * const b);
 t_vec3 vec3_vec3_sub(const t_vec3 * const a, const t_vec3 * const b);
