@@ -7,14 +7,18 @@
 
 typedef struct s_mainloop
 {
-    t_check_timer check_timer;
-    t_framebuffer framebuffer;
-    t_sdl_instance sdl_instance;
+    t_check_timer *check_timer;
+    t_framebuffer *framebuffer;
+    t_sdl_instance *sdl_instance;
+    float deltatime;
+    size_t frame_count;
+    uint max_fps;
 
     int is_running;
 
     void (*run)(struct s_mainloop *this);
-    void (*prepare)(struct s_mainloop *this);
+    void (*calc_deltatime)(struct s_mainloop *this);
+    void (*limit_fps)(struct s_mainloop *this);
 
     void (*update)(struct s_mainloop *this);
     void (*late_update)(struct s_mainloop *this);
@@ -28,6 +32,6 @@ typedef struct s_mainloop
     void (*stop)(struct s_mainloop *this);
 } t_mainloop;
 
-t_mainloop construct_mainloop(t_ivec2 resolution, const char * const title);
+t_mainloop *construct_mainloop(t_ivec2 resolution, const char * const title);
 
 #endif // MAINLOOP_H

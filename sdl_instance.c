@@ -27,14 +27,15 @@ void present(t_sdl_instance *this)
     SDL_RenderPresent(this->renderer);
 }
 
-t_sdl_instance construct_sdl_instance(const t_ivec2 resolution, const char * const title)
+t_sdl_instance *construct_sdl_instance(const t_ivec2 resolution, const char * const title)
 {
-    t_sdl_instance this;
+    t_sdl_instance *this;
 
-    this.init = &init;
-    this.present = &present;
+    SDL_assert((this = malloc(sizeof(t_sdl_instance))) != NULL);
+    this->init = &init;
+    this->present = &present;
 
-    this.resolution = resolution;
-    this.init(&this, title);
+    this->resolution = resolution;
+    this->init(this, title);
     return (this);
 }
