@@ -57,11 +57,9 @@ static void prerender(t_mainloop *this)
 
 static void render(t_mainloop *this)
 {
-    this->framebuffer.pixels[10000] = 0xFF00FF;
-    SDL_SetRenderDrawColor(this->sdl_instance.renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-    SDL_RenderClear(this->sdl_instance.renderer);
-    SDL_SetRenderDrawColor(this->sdl_instance.renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-    SDL_RenderDrawLine(this->sdl_instance.renderer, 100, 100, 200, 200);
+	for(int i = 0; i < this->framebuffer.pixel_count; i++)
+		if(i%2 == 0)
+    		this->framebuffer.pixels[i] = rand()%0xFFFFFF;
 }
 
 static void postrender(t_mainloop *this)
@@ -72,7 +70,22 @@ static void postrender(t_mainloop *this)
 
 void input(t_mainloop *this)
 {
-
+	SDL_Event event;
+	while(SDL_PollEvent(&event))
+	{
+		switch( event.type ){
+			case SDL_KEYDOWN:
+				if (event.key.keysym.sym == SDLK_ESCAPE)
+					this->is_running = 0;
+				break;
+			case SDL_WINDOWEVENT:
+				if (event.window.event == SDL_WINDOWEVENT_CLOSE)
+					this->is_running = 0;
+				break;
+			default:
+				break;
+		}
+	}
 }
 
 void stop(struct s_mainloop *this)

@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 
+
 typedef struct s_check_timer
 {
     float time_passed;

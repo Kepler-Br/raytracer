@@ -1,6 +1,6 @@
 #include "framebuffer.h"
 
-static float init(struct s_framebuffer *this, t_ivec2 resolution)
+static void init(struct s_framebuffer *this, t_ivec2 resolution)
 {
     this->resolution = resolution;
     if(this->pixels != NULL)
