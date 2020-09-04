@@ -11,7 +11,7 @@ char *create_render_mask(const size_t size, const int pobability_black)
     index = 0;
     while(index < size)
     {
-        if(rand()%100 < pobability_black)
+        if(rand()%100 + 1 < pobability_black)
             mask[index] = 0;
         else
             mask[index] = 1;
