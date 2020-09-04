@@ -22,7 +22,7 @@ static void init(t_sdl_instance *this, const char * const title)
     }
 }
 
-void present(t_sdl_instance *this)
+static void present(t_sdl_instance *this)
 {
     SDL_RenderPresent(this->renderer);
 }

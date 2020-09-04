@@ -2,7 +2,7 @@
 #include "ray.h"
 #include <SDL2/SDL.h>
 
-int plane_intersect(t_shape *this, t_intersection *intersection)
+static int plane_intersect(t_shape *this, t_intersection *intersection)
 {
     t_shape_plane *str;
     t_vec3 pos_sub;
@@ -33,7 +33,7 @@ int plane_intersect(t_shape *this, t_intersection *intersection)
     return (1);
 }
 
-int plane_does_intersect(t_shape *this, t_ray *ray)
+static int plane_does_intersect(t_shape *this, t_ray *ray)
 {
     t_shape_plane *str;
     t_vec3 pos_sub;
@@ -68,15 +68,15 @@ t_shape *construct_shape_plane(t_vec3 position, t_vec3 normal)
 
     plane->normal = normal;
     plane->position = position;
-    plane->color = (t_ivec3){{1.0f, 0.0f, 1.0f}};
 
+    shape->color = (t_vec3){{1.0f, 0.0f, 1.0f}};
     shape->inhereted = (void *)plane;
     shape->intersect = &plane_intersect;
     shape->does_intersect = &plane_does_intersect;
     return (shape);
 }
 
-t_shape *destroy_shape_plane(t_shape *shape)
+void destroy_shape_plane(t_shape *shape)
 {
     free(shape->inhereted);
     free(shape);
