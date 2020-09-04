@@ -80,7 +80,7 @@ static void prerender(t_mainloop *this)
 static void render(t_mainloop *this)
 {
     uint32_t *pixel;
-    t_shape *plane = construct_shape_plane((t_vec3){{0.0f, 0.0f, 0.0f}}, (t_vec3){{0.0f, 1.0f, 0.0f}});
+    t_shape *plane = construct_shape_plane((t_vec3){{0.0f, 0.0f, 0.0f}}, (t_vec3){{0.0f, 1.0f, 0.0f}}, "plane1");
     plane->color = (t_vec3){{1.0f, 0.0f, 1.0f}};
 
     for(int x = 0; x < this->framebuffer->resolution.x; x++)
