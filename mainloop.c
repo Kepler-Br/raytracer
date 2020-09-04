@@ -28,8 +28,8 @@ static void run(t_mainloop *this)
         lag += this->check_timer->check(this->check_timer);
         this->sdl_instance->present(this->sdl_instance);
         this->frame_count++;
-        if(this->frame_count % 60 == 0)
-            printf("%f\n", 1.0f/this->deltatime);
+        if(this->frame_count % (int)(1.0f/this->deltatime) == 0)
+            printf("%d\n", (int)(1.0f/this->deltatime));
         this->limit_fps(this);
     }
 }
@@ -80,6 +80,7 @@ static void render(t_mainloop *this)
 {
     uint32_t *pixel;
     t_shape *plane = construct_shape_plane((t_vec3){{0.0f, 0.0f, 0.0f}}, (t_vec3){{0.0f, 1.0f, 0.0f}});
+    plane->color = (t_vec3){{1.0f, 0.0f, 1.0f}};
 
     for(int x = 0; x < this->framebuffer->resolution.x; x++)
     {
@@ -91,9 +92,9 @@ static void render(t_mainloop *this)
             t_ray ray = this->camera->make_ray(this->camera, &screen_coord);
             t_intersection intersection = construct_intersection(ray);
             if(plane->intersect(plane, &intersection))
-//            if(plane->does_intersect(plane, &ray))
-//                *pixel = 0xFF00FF;
-                this->framebuffer->set_pixel(this->framebuffer, (t_ivec2){{x, y}}, (t_vec3){{0.0f, 1.0f, 0.0f}});
+            {
+                this->framebuffer->set_pixel(this->framebuffer, (t_ivec2){{x, y}}, intersection.shape->color);
+            }
             else
                 *pixel = 0x0;
 //            *pixel = 0xFF00FF;

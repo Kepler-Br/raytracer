@@ -9,6 +9,7 @@ typedef struct s_ray t_ray;
 typedef struct s_shape
 {
     void *inhereted;
+    t_vec3 color;
 
     int (*intersect)(struct s_shape *this, t_intersection *intersection);
     int (*does_intersect)(struct s_shape *this, t_ray *ray);
@@ -18,11 +19,9 @@ typedef struct s_shape_plane
 {
     t_vec3 position;
     t_vec3 normal;
-
-    t_ivec3 color;
 } t_shape_plane;
 
 t_shape *construct_shape_plane(t_vec3 position, t_vec3 normal);
-t_shape *destroy_shape_plane(t_shape *shape);
+void destroy_shape_plane(t_shape *shape);
 
 #endif // SHAPE_H

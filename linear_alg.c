@@ -47,6 +47,25 @@ t_vec2 vec2_scalar_div(const t_vec2 * const a, const float * const b)
 }
 
 
+t_vec2 vec2_clamp(const t_vec2 *const a, float start, float end)
+{
+    t_vec2 result;
+
+    result = *a;
+    vec2_clamp_ptr(&result, start, end);
+    return (result);
+}
+
+void vec2_clamp_ptr(t_vec2 * const a, float start, float end)
+{
+    a->x = a->x >= end ? end : a->x;
+    a->x = a->x <= start ? start : a->x;
+
+    a->y = a->y >= end ? end : a->y;
+    a->y = a->y <= start ? start : a->y;
+}
+
+
 
 
 
@@ -104,6 +123,27 @@ t_vec3 vec3_scalar_div(const t_vec3 * const a, const float * const b)
     return (t_vec3){{a->x / *b, a->y / *b, a->z / *b}};
 }
 
+
+t_vec3 vec3_clamp(const t_vec3 *const a, float start, float end)
+{
+    t_vec3 result;
+
+    result = *a;
+    vec3_clamp_ptr(&result, start, end);
+    return (result);
+}
+
+void vec3_clamp_ptr(t_vec3 * const a, float start, float end)
+{
+    a->x = a->x >= end ? end : a->x;
+    a->x = a->x <= start ? start : a->x;
+
+    a->y = a->y >= end ? end : a->y;
+    a->y = a->y <= start ? start : a->y;
+
+    a->z = a->z >= end ? end : a->z;
+    a->z = a->z <= start ? start : a->z;
+}
 
 
 
@@ -330,7 +370,7 @@ t_mat4 mat4_inverse(const t_mat4 * const a)
 }
 t_mat4 mat4_scalar_mul(const t_mat4 * const a, const float * const b)
 {
-    const static size_t total_components = 16;
+    static const size_t total_components = 16;
     size_t i;
     t_mat4 new_mat;
 
@@ -345,7 +385,7 @@ t_mat4 mat4_scalar_mul(const t_mat4 * const a, const float * const b)
 
 t_mat4 mat4_scalar_sum(const t_mat4 * const a, const float * const b)
 {
-    const static size_t total_components = 16;
+    static const size_t total_components = 16;
     size_t i;
     t_mat4 new_mat;
 
@@ -360,7 +400,7 @@ t_mat4 mat4_scalar_sum(const t_mat4 * const a, const float * const b)
 
 t_mat4 mat4_scalar_sub(const t_mat4 * const a, const float * const b)
 {
-    const static size_t total_components = 16;
+    static const size_t total_components = 16;
     size_t i;
     t_mat4 new_mat;
 
@@ -375,7 +415,7 @@ t_mat4 mat4_scalar_sub(const t_mat4 * const a, const float * const b)
 
 t_mat4 mat4_scalar_div(const t_mat4 * const a, const float * const b)
 {
-    const static size_t total_components = 16;
+    static const size_t total_components = 16;
     size_t i;
     t_mat4 new_mat;
 
