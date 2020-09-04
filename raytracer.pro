@@ -12,6 +12,7 @@ SOURCES += \
         main.c \
         mainloop.c \
         ray.c \
+        render_mask.c \
         scene.c \
         sdl_instance.c \
         shape.c
@@ -24,6 +25,7 @@ HEADERS += \
     linear_alg.h \
     mainloop.h \
     ray.h \
+    render_mask.h \
     scene.h \
     sdl_instance.h \
     shape.h
