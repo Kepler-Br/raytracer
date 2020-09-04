@@ -86,6 +86,8 @@ static void render(t_mainloop *this)
     {
         for(int y = 0; y < this->framebuffer->resolution.y; y++)
         {
+            if(this->render_mask[x * y] == 0)
+                continue;
             pixel = this->framebuffer->get_pixel(this->framebuffer, (t_ivec2){{x, y}});
             t_vec2 screen_coord = (t_vec2){{2.0f * x / this->framebuffer->resolution.x - 1.0f,
                                             2.0f * y / this->framebuffer->resolution.y - 1.0f}};
@@ -164,5 +166,6 @@ t_mainloop *construct_mainloop(t_ivec2 resolution, const char * const title)
     this->sdl_instance = construct_sdl_instance(resolution, title);
     this->framebuffer = construct_framebuffer(resolution, this->sdl_instance);
     this->camera = construct_camera((t_vec3){{-5.0f, 1.0f, 0.0f}}, (t_vec3){{0.0f, 1.0f, 0.0f}}, (t_vec3){{0.0f, -1.0f, 0.0f}}, M_PI/4.0f, this->framebuffer->resolution.x/this->framebuffer->resolution.y);
+    this->render_mask = create_render_mask(resolution.x * resolution.y, 80);
     return (this);
 }
