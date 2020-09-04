@@ -1,5 +1,6 @@
 #include "shape.h"
 #include "ray.h"
+#include "libft.h"
 #include <SDL2/SDL.h>
 
 static int plane_intersect(t_shape *this, t_intersection *intersection)
@@ -58,19 +59,20 @@ static int plane_does_intersect(t_shape *this, t_ray *ray)
     return (1);
 }
 
-t_shape *construct_shape_plane(t_vec3 position, t_vec3 normal)
+t_shape *construct_shape_plane(t_vec3 position, t_vec3 normal, char *name)
 {
     t_shape *shape;
     t_shape_plane *plane;
 
     SDL_assert((plane = malloc(sizeof (t_shape_plane))) != NULL);
     SDL_assert((shape = malloc(sizeof (t_shape))) != NULL);
+	SDL_assert((shape->name = ft_strdup(name)) != NULL);
 
     plane->normal = normal;
     plane->position = position;
-
     shape->color = (t_vec3){{1.0f, 0.0f, 1.0f}};
     shape->inhereted = (void *)plane;
+
     shape->intersect = &plane_intersect;
     shape->does_intersect = &plane_does_intersect;
     return (shape);

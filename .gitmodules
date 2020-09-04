@@ -1,3 +1,6 @@
 [submodule "double_linked_list"]
 	path = double_linked_list
 	url = https://github.com/Kepler-Br/double_linked_list
+[submodule "libft"]
+	path = libft
+	url = https://github.com/Kepler-Br/libft
