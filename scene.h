@@ -11,8 +11,10 @@ typedef struct s_scene
 
 	void (*cache_shapes)(struct s_scene *this);
 	void (*add_shape)(struct s_scene *this, t_shape *shape);
+	void (*list)(struct s_scene *this);
 } t_scene;
 
 t_scene *construct_scene();
+void destruct_scene(struct s_scene *this);
 
 #endif // SCENE_H

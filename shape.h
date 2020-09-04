@@ -14,6 +14,7 @@ typedef struct s_shape
 
     int (*intersect)(struct s_shape *this, t_intersection *intersection);
     int (*does_intersect)(struct s_shape *this, t_ray *ray);
+    void (*destructor)(void *this);
 } t_shape;
 
 typedef struct s_shape_plane
@@ -23,6 +24,7 @@ typedef struct s_shape_plane
 } t_shape_plane;
 
 t_shape *construct_shape_plane(t_vec3 position, t_vec3 normal, char *name);
-void destroy_shape_plane(t_shape *shape);
+//void destruct_shape_plane(void *shape);
+void destruct_shape(t_shape *this);
 
 #endif // SHAPE_H

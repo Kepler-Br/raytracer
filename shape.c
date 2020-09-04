@@ -59,6 +59,10 @@ static int plane_does_intersect(t_shape *this, t_ray *ray)
     return (1);
 }
 
+static void destruct_shape_plane(void *this)
+{
+}
+
 t_shape *construct_shape_plane(t_vec3 position, t_vec3 normal, char *name)
 {
     t_shape *shape;
@@ -75,11 +79,14 @@ t_shape *construct_shape_plane(t_vec3 position, t_vec3 normal, char *name)
 
     shape->intersect = &plane_intersect;
     shape->does_intersect = &plane_does_intersect;
+    shape->destructor = &destruct_shape_plane;
     return (shape);
 }
 
-void destroy_shape_plane(t_shape *shape)
+
+
+void destruct_shape(t_shape *this)
 {
-    free(shape->inhereted);
-    free(shape);
+	free(this->name);
+	this->destructor(this->inhereted);
 }
