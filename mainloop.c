@@ -103,7 +103,7 @@ static void render(t_mainloop *this)
 //            *pixel = 0xFF00FF;
         }
     }
-    destroy_shape_plane(plane);
+	destruct_shape(plane);
 //    for(int i = 0; i < (int)this->framebuffer->pixel_count; i++)
 //        if(i%1 == 0)
 //            this->framebuffer->pixels[i] = rand()%0xFFFFFF;
@@ -168,5 +168,8 @@ t_mainloop *construct_mainloop(t_ivec2 resolution, const char * const title)
     this->framebuffer = construct_framebuffer(resolution, this->sdl_instance);
     this->camera = construct_camera((t_vec3){{-5.0f, 1.0f, 0.0f}}, (t_vec3){{0.0f, 1.0f, 0.0f}}, (t_vec3){{0.0f, -1.0f, 0.0f}}, M_PI/4.0f, this->framebuffer->resolution.x/this->framebuffer->resolution.y);
     this->render_mask = create_render_mask(resolution.x * resolution.y, 50);
+    this->scene = construct_scene();
+    this->scene->add_shape(this->scene, construct_shape_plane((t_vec3){{1.0f, 1.0f, 0.0f}}, (t_vec3){{0.0f, 1.0f, 0.0f}}, "plane1"));
+    this->scene->list(this->scene);
     return (this);
 }

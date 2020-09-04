@@ -6,6 +6,7 @@
 #include "framebuffer.h"
 #include "camera.h"
 #include "render_mask.h"
+#include "scene.h"
 
 typedef struct s_mainloop
 {
@@ -13,6 +14,7 @@ typedef struct s_mainloop
     t_framebuffer *framebuffer;
     t_sdl_instance *sdl_instance;
     t_camera *camera;
+    t_scene *scene;
     char *render_mask;
 
     float deltatime;
