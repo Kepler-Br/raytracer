@@ -1,7 +1,7 @@
 #ifndef SDL_INSTANCE_H
 #define SDL_INSTANCE_H
 
-#include "linear_alg.h"
+#include "ivec2.h"
 #include <SDL2/SDL.h>
 
 typedef struct s_sdl_instance

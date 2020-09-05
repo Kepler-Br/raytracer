@@ -1,7 +1,6 @@
 #ifndef MAINLOOP_H
 #define MAINLOOP_H
 
-#include "linear_alg.h"
 #include "check_timer.h"
 #include "framebuffer.h"
 #include "camera.h"

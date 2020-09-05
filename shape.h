@@ -1,7 +1,7 @@
 #ifndef SHAPE_H
 #define SHAPE_H
 
-#include "linear_alg.h"
+#include "vec3.h"
 
 typedef struct s_intersection t_intersection;
 typedef struct s_ray t_ray;

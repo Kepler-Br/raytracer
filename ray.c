@@ -4,7 +4,7 @@ static t_vec3 calc(t_ray *this, float dist)
 {
     static t_vec3 scalar_mul;
 
-    scalar_mul = vec3_scalar_mul(&this->direction, &dist);
+    scalar_mul = vec3_scalar_mul(&this->direction, dist);
     return vec3_vec3_sum(&this->origin, &scalar_mul);
 }
 

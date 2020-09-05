@@ -3,7 +3,8 @@
 
 #include <SDL2/SDL.h>
 #include "sdl_instance.h"
-#include "linear_alg.h"
+#include "ivec2.h"
+#include "vec3.h"
 
 typedef struct s_framebuffer
 {
