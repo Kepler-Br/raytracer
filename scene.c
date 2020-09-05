@@ -50,7 +50,6 @@ static void destroy_shape(t_scene *this, char *name)
         }
         itr = itr->next;
     }
-    return;
 }
 
 static int  intersect(struct s_scene *this, t_intersection *intersection)
@@ -65,17 +64,16 @@ static int  intersect(struct s_scene *this, t_intersection *intersection)
     local_intersection = *intersection;
     current_shape = this->cached_shapes[0];
     current_shape->intersect(current_shape, &local_intersection);
-    min_dist = local_intersection.dist;
     local_intersection.shape = current_shape;
     *intersection = local_intersection;
-    min_dist = 0.0f;
+    min_dist = local_intersection.dist;
     index = 1;
     while(index < this->cahce_size)
     {
         current_shape = this->cached_shapes[index];
         current_shape->intersect(current_shape, &local_intersection);
 //        printf("%f\n", local_intersection.dist);
-        if(local_intersection.dist > min_dist && local_intersection.dist > 0.0f)
+        if(local_intersection.dist < min_dist || min_dist == 0.0f)
         {
             min_dist = local_intersection.dist;
             local_intersection.shape = current_shape;

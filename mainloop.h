@@ -17,7 +17,8 @@ typedef struct s_mainloop
     char *render_mask;
 
     float deltatime;
-    size_t frame_count;
+	size_t frame_count;
+	float time_since_start;
     uint max_fps;
 
     int is_running;

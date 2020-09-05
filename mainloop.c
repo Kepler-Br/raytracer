@@ -13,6 +13,7 @@ static void run(t_mainloop *this)
     while(this->is_running)
     {
         this->calc_deltatime(this);
+		this->time_since_start += this->deltatime;
         this->prerender(this);
         this->render(this);
         this->postrender(this);
@@ -105,8 +106,9 @@ static void render(t_mainloop *this)
 //    t_shape *plane = construct_shape_plane((t_vec3){{0.0f, 0.0f, 0.0f}}, (t_vec3){{1.0f, 0.0f, 1.0f}}, "plane1");
 //    t_shape *plane = construct_shape_sphere((t_vec3){{10, sin((float)this->frame_count/10.0f), cos((float)this->frame_count/10.0f)}}, 2.1f, "plane1");
 //    plane->color = (t_vec3){{1.0f, 0.0f, 1.0f}};
-    t_shape *plane = this->scene->cached_shapes[0];
-    ((t_shape_plane *)plane->inhereted)->position.y = sin(this->frame_count/100.0f);
+    t_shape *plane = this->scene->cached_shapes[1];
+	((t_shape_plane *)plane->inhereted)->position.x = sin(this->time_since_start)*2.0f;
+	((t_shape_plane *)plane->inhereted)->position.z = cos(this->time_since_start)*2.0f;
 
 
     int x;
@@ -128,12 +130,12 @@ static void render(t_mainloop *this)
 //            if(plane->does_intersect(plane, &ray))
             {
                 t_vec3 position = intersection.position(&intersection);
-                t_vec3 color = pal(cos(position.x+position.y*position.z));
+//                t_vec3 color = pal(cos(position.x+position.y*position.z));
 //                t_vec3 color = pal(cos(intersection.dist));
 //                *pixel = (uint32_t)(tan(intersection.dist)*1000);
 //                t_vec3 color = pal(1.0f);
-                this->framebuffer->set_pixel(this->framebuffer, (t_ivec2){{x, y}}, color);
-//                this->framebuffer->set_pixel(this->framebuffer, (t_ivec2){{x, y}}, intersection.shape->color);
+//                this->framebuffer->set_pixel(this->framebuffer, (t_ivec2){{x, y}}, color);
+                this->framebuffer->set_pixel(this->framebuffer, (t_ivec2){{x, y}}, intersection.shape->color);
             }
             else
                 *pixel = 0x0;
@@ -197,6 +199,7 @@ t_mainloop *construct_mainloop(t_ivec2 resolution, const char * const title)
     this->limit_fps = &limit_fps;
 
     this->deltatime = 1.0f;
+	this->time_since_start = 1.0f;
     this->frame_count = 0;
     this->max_fps = 60;
 
@@ -204,12 +207,20 @@ t_mainloop *construct_mainloop(t_ivec2 resolution, const char * const title)
     this->sdl_instance = construct_sdl_instance(resolution, title);
     this->framebuffer = construct_framebuffer(resolution, this->sdl_instance);
     this->camera = construct_camera((t_vec3){{-5.0f, 1.0f, 0.0f}}, (t_vec3){{0.0f, 0.0f, 0.0f}}, (t_vec3){{0.5f, -0.5f, 0.0f}}, M_PI/4.0f, this->framebuffer->resolution.x/this->framebuffer->resolution.y);
-    this->render_mask = create_render_mask(resolution.x * resolution.y, 30);
+    this->render_mask = create_render_mask(resolution.x * resolution.y, 90);
     this->scene = construct_scene();
-    t_shape *shape = construct_shape_plane((t_vec3){{0.0f, -80.0f, 0.0f}}, (t_vec3){{0.0f, -1.0f, 0.0f}}, "plane1");
+    t_shape *shape = construct_shape_plane((t_vec3){{0.0f, 0.0f, 0.0f}}, (t_vec3){{0.0f, -1.0f, 0.0f}}, "plane1");
+	shape->color = (t_vec3){{1.0f, 0.0f, 1.0f}};
     this->scene->add_shape(this->scene, &shape);
-    shape = construct_shape_sphere((t_vec3){{0.0f, -3.0f, 0.0f}}, 1.0f, "sphere1");
+    shape = construct_shape_sphere((t_vec3){{0.0f, 1.0f, 0.0f}}, 1.0f, "sphere1");
+	shape->color = (t_vec3){{0.0f, 1.0f, 1.0f}};
     this->scene->add_shape(this->scene, &shape);
+	shape = construct_shape_plane((t_vec3){{0.0f, 0.0f, 0.0f}}, (t_vec3){{-1.0f, 0.0f, 0.0f}}, "plane1");
+	shape->color = (t_vec3){{0.0f, 0.0f, 1.0f}};
+	this->scene->add_shape(this->scene, &shape);
+//	shape = construct_shape_plane((t_vec3){{0.0f, -80.0f, 0.0f}}, (t_vec3){{1.0f, 0.0f, 0.0f}}, "plane2");
+//	shape->color = (t_vec3){{1.0f, 0.0f, 0.0f}};
+//	this->scene->add_shape(this->scene, &shape);
 //    shape = construct_shape_plane((t_vec3){{1.0f, 1.0f, 0.0f}}, (t_vec3){{0.0f, 1.0f, 0.0f}}, "plane2");
 //    this->scene->add_shape(this->scene, &shape);
 //    this->scene->list(this->scene);
