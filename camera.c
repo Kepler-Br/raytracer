@@ -8,11 +8,11 @@ static t_ray make_ray(t_camera *this, t_vec2 *screen_point)
     float num;
 
     num = screen_point->x * this->width;
-    vec = vec3_scalar_mul(&this->right, &num);
+    vec = vec3_scalar_mul(&this->right, num);
     vec = vec3_vec3_sum(&this->forward, &vec);
 
     num = screen_point->y * this->height;
-    vec2 = vec3_scalar_mul(&this->up, &num);
+    vec2 = vec3_scalar_mul(&this->up, num);
 
     direction = vec3_vec3_sum(&vec, &vec2);
     direction = vec3_normalize(&direction);

@@ -1,7 +1,8 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "linear_alg.h"
+#include "vec3.h"
+#include "vec2.h"
 #include "ray.h"
 #include <SDL2/SDL.h>
 

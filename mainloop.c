@@ -89,9 +89,9 @@ t_vec3 pal( float t) {
     t_vec3 d = (t_vec3){{0.0f, 0.33f, 0.67f}};
     static const float constant = 6.28318f;
 
-    result = vec3_scalar_mul(&c, &t);
+    result = vec3_scalar_mul(&c, t);
     result = vec3_vec3_sum(&result, &d);
-    result = vec3_scalar_mul(&result, &constant);
+    result = vec3_scalar_mul(&result, constant);
     result = (t_vec3){{cos(result.x), cos(result.y), cos(result.z)}};
     result = (t_vec3){{result.x*b.x, result.y*b.y, result.z*b.z}};
     result = vec3_vec3_sum(&a, &result);
@@ -204,7 +204,7 @@ t_mainloop *construct_mainloop(t_ivec2 resolution, const char * const title)
     this->sdl_instance = construct_sdl_instance(resolution, title);
     this->framebuffer = construct_framebuffer(resolution, this->sdl_instance);
     this->camera = construct_camera((t_vec3){{-5.0f, 1.0f, 0.0f}}, (t_vec3){{0.0f, 0.0f, 0.0f}}, (t_vec3){{0.5f, -0.5f, 0.0f}}, M_PI/4.0f, this->framebuffer->resolution.x/this->framebuffer->resolution.y);
-    this->render_mask = create_render_mask(resolution.x * resolution.y, 0);
+    this->render_mask = create_render_mask(resolution.x * resolution.y, 30);
     this->scene = construct_scene();
     t_shape *shape = construct_shape_plane((t_vec3){{0.0f, -80.0f, 0.0f}}, (t_vec3){{0.0f, -1.0f, 0.0f}}, "plane1");
     this->scene->add_shape(this->scene, &shape);

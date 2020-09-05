@@ -1,11 +1,12 @@
 #ifndef RAY_H
 #define RAY_H
 
-#include "linear_alg.h"
+
 
 #define MAX_RAY_DIST 1.0e30f
 #define MIN_RAY_DIST 0.0001f
 
+#include "vec3.h"
 #include "shape.h"
 
 typedef struct s_ray

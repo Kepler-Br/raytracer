@@ -1,7 +1,8 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#include "linear_alg.h"
+#include "vec3.h"
+#include "ivec3.h"
 
 t_vec3 color_color_mul(const t_vec3 * const color1, const t_vec3 * const color2);
 t_vec3 color_color_sum(const t_vec3 * const color1, const t_vec3 * const color2);
