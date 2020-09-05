@@ -25,6 +25,7 @@ typedef struct s_intersection
     t_ray ray;
     float dist;
     t_shape *shape;
+    t_vec3 normal;
 
     int (*is_intersected)(struct s_intersection *this);
     t_vec3 (*position)(struct s_intersection *this);

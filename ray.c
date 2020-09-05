@@ -30,6 +30,7 @@ t_intersection construct_intersection(t_ray ray)
     t_intersection this;
 
     this.dist = 0.0f;
+	this.normal = (t_vec3){{0.0f, 0.0f, 0.0f}};
     this.ray = ray;
     this.shape = NULL;
 

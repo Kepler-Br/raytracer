@@ -19,12 +19,9 @@ static t_ray make_ray(t_camera *this, t_vec2 *screen_point)
     return (construct_ray(this->origin, direction, MAX_RAY_DIST));
 }
 
-t_camera *construct_camera(t_vec3 origin, t_vec3 target, t_vec3 up, float fov, float aspect)
+void look_at(struct s_camera *this, t_vec3 origin, t_vec3 target, t_vec3 up)
 {
-    t_camera *this;
     t_vec3 vec;
-
-    SDL_assert((this = malloc(sizeof(t_camera))) != NULL);
 
     this->origin = origin;
     vec = vec3_vec3_sub(&target, &origin);
@@ -32,9 +29,19 @@ t_camera *construct_camera(t_vec3 origin, t_vec3 target, t_vec3 up, float fov, f
     vec = vec3_vec3_cross(&this->forward, &up);
     this->right = vec3_normalize(&vec);
     this->up = vec3_vec3_cross(&this->right, &this->forward);
+}
+
+t_camera *construct_camera(float fov, float aspect)
+{
+    t_camera *this;
+
+
+    SDL_assert((this = malloc(sizeof(t_camera))) != NULL);
+
     this->height = tanf(fov);
     this->width = this->height * aspect;
 
     this->make_ray = &make_ray;
+    this->look_at = &look_at;
     return (this);
 }

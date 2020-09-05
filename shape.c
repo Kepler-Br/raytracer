@@ -30,6 +30,7 @@ static int plane_intersect(t_shape *this, t_intersection *intersection)
 
     intersection->dist = point_distance;
     intersection->shape = this;
+	intersection->normal = str->normal;
 
     return (1);
 }
@@ -72,9 +73,9 @@ t_shape *construct_shape_plane(t_vec3 position, t_vec3 normal, char *name)
     SDL_assert((shape = malloc(sizeof (t_shape))) != NULL);
 	SDL_assert((shape->name = ft_strdup(name)) != NULL);
 
-    plane->normal = normal;
+    plane->normal = vec3_normalize(&normal);
     plane->position = position;
-    shape->color = (t_vec3){{1.0f, 0.0f, 1.0f}};
+    shape->absorb_color = (t_vec3){{1.0f, 0.0f, 1.0f}};
     shape->inhereted = (void *)plane;
 
     shape->intersect = &plane_intersect;
@@ -95,31 +96,6 @@ static int sphere_intersect(t_shape *this, t_intersection *intersection)
 
     str = (t_shape_sphere *)this->inhereted;
     t_ray local_ray = intersection->ray;
-//    local_ray.origin = vec3_vec3_sub(&local_ray.origin, &str->position);
-
-//    float a = local_ray.direction.x*local_ray.direction.x + local_ray.direction.y*local_ray.direction.y + local_ray.direction.z*local_ray.direction.z;
-//    float b = 2.0f * vec3_vec3_dot(&local_ray.direction, &local_ray.origin);
-//    float c = local_ray.origin.x*local_ray.origin.x + local_ray.origin.y*local_ray.origin.y + local_ray.origin.z*local_ray.origin.z - str->radius*str->radius;
-
-//    float discriminant = b*b - 4 * a * c;
-
-//    if (discriminant < 0.0f)
-//    {
-//        return (0);
-//    }
-
-//    float t1 = (-b - sqrtf(discriminant)) / (2 * a);
-//    float t2 = (-b + sqrtf(discriminant)) / (2 * a);
-//    if (t1 > MIN_RAY_DIST && t1 < intersection->dist)
-//        intersection->dist = t1;
-//    else if (t2 > MIN_RAY_DIST && t2 < intersection->dist)
-//        intersection->dist = t2;
-//    else
-//        return (0);
-
-//    intersection->shape = this;
-
-//    return (0);
 
     float t0, t1;
     t_vec3 L = vec3_vec3_sub(&str->position, &local_ray.origin);
@@ -149,9 +125,10 @@ static int sphere_intersect(t_shape *this, t_intersection *intersection)
     }
 
     intersection->dist = t0;
-//    result.normal = glm::normalize((ray.origin + ray.direction * t0) - _origin);
-//    intersection->position = ray.origin + ray.direction * t0;
-//    intersection->ray. = local_ray.calc(&local_ray, t0);
+	intersection->normal = vec3_scalar_mul(&local_ray.direction, t0);
+	intersection->normal = vec3_vec3_sum(&local_ray.origin, &intersection->normal);
+	intersection->normal = vec3_vec3_sum(&intersection->normal, &str->position);
+	intersection->normal = vec3_normalize(&intersection->normal);
     return (1);
 }
 
@@ -201,7 +178,7 @@ t_shape *construct_shape_sphere(t_vec3 position, float radius, char *name)
 
     sphere->radius = radius;
     sphere->position = position;
-    shape->color = (t_vec3){{1.0f, 0.0f, 1.0f}};
+    shape->absorb_color = (t_vec3){{1.0f, 0.0f, 1.0f}};
     shape->inhereted = (void *)sphere;
 
     shape->intersect = &sphere_intersect;
