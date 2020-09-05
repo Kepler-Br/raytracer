@@ -13,6 +13,6 @@ LINK_DIRECTORIES(libft)
 LINK_DIRECTORIES(double_linked_list)
 LINK_DIRECTORIES(c_linear_algebra)
 
-add_executable(raytracer camera.c check_timer.c color.c framebuffer.c main.c mainloop.c ray.c render_mask.c scene.c sdl_instance.c shape.c)
+add_executable(raytracer camera.c check_timer.c color.c framebuffer.c main.c mainloop.c ray.c render_mask.c scene.c sdl_instance.c shape.c point_light.h)
 find_library(OPENCL_UNIT OpenCL)
 target_link_libraries(raytracer ${OPENCL_UNIT} SDL2 ft dllist cla)

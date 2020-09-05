@@ -10,7 +10,7 @@ typedef struct s_shape
 {
     void *inhereted;
     char *name;
-    t_vec3 color;
+    t_vec3 absorb_color;
 
     int (*intersect)(struct s_shape *this, t_intersection *intersection);
     int (*does_intersect)(struct s_shape *this, t_ray *ray);

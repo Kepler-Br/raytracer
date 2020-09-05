@@ -6,7 +6,7 @@ CONFIG -= qt
 SOURCES += \
         camera.c \
         check_timer.c \
-        color.c \
+        absorb_color.c \
         framebuffer.c \
         linear_alg.c \
         main.c \
@@ -20,7 +20,7 @@ SOURCES += \
 HEADERS += \
     camera.h \
     check_timer.h \
-    color.h \
+    absorb_color.h \
     framebuffer.h \
     linear_alg.h \
     mainloop.h \
