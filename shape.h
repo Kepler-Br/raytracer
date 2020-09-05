@@ -17,6 +17,8 @@ typedef struct s_shape
     void (*destructor)(void *this);
 } t_shape;
 
+void destruct_shape(t_shape *this);
+
 typedef struct s_shape_plane
 {
     t_vec3 position;
@@ -24,7 +26,13 @@ typedef struct s_shape_plane
 } t_shape_plane;
 
 t_shape *construct_shape_plane(t_vec3 position, t_vec3 normal, char *name);
-//void destruct_shape_plane(void *shape);
-void destruct_shape(t_shape *this);
+
+typedef struct s_shape_sphere
+{
+    t_vec3 position;
+    float radius;
+} t_shape_sphere;
+
+t_shape *construct_shape_sphere(t_vec3 position, float radius, char *name);
 
 #endif // SHAPE_H

@@ -27,11 +27,11 @@ t_camera *construct_camera(t_vec3 origin, t_vec3 target, t_vec3 up, float fov, f
     SDL_assert((this = malloc(sizeof(t_camera))) != NULL);
 
     this->origin = origin;
-    this->up = up;
     vec = vec3_vec3_sub(&target, &origin);
     this->forward = vec3_normalize(&vec);
     vec = vec3_vec3_cross(&this->forward, &up);
-    this->right = vec3_vec3_cross(&this->right, &this->forward);
+    this->right = vec3_normalize(&vec);
+    this->up = vec3_vec3_cross(&this->right, &this->forward);
     this->height = tanf(fov);
     this->width = this->height * aspect;
 

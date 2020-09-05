@@ -20,6 +20,10 @@ t_ray construct_ray(t_vec3 origin, t_vec3 direction, float max_dist)
     return (this);
 }
 
+static t_vec3 position(t_intersection *this)
+{
+    return (this->ray.calc(&this->ray, this->dist));
+}
 
 t_intersection construct_intersection(t_ray ray)
 {
@@ -28,5 +32,7 @@ t_intersection construct_intersection(t_ray ray)
     this.dist = 0.0f;
     this.ray = ray;
     this.shape = NULL;
+
+    this.position = &position;
     return (this);
 }

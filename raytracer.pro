@@ -30,4 +30,9 @@ HEADERS += \
     sdl_instance.h \
     shape.h
 
-LIBS += -lSDL2
+
+INCLUDEPATH += double_linked_list/includes libft/
+#INCLUDEPATH += libft/
+LIBS += -L"$$PWD/double_linked_list/" -L "$$PWD/libft/" -lSDL2 -lft -ldouble_linked_list
+#LIBS += -L"/home/kepler-br/Documents/Devel/CPP/raytracer/double_linked_list/" -L"/home/kepler-br/Documents/Devel/CPP/raytracer/libft/" -lSDL2 -lft
+
