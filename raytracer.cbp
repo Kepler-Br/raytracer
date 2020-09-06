@@ -160,6 +160,12 @@
 		<Unit filename="/Users/nsena/Documents/Devel/raytracer/shape.h">
 			<Option target="raytracer"/>
 		</Unit>
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/tools.c">
+			<Option target="raytracer"/>
+		</Unit>
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/tools.h">
+			<Option target="raytracer"/>
+		</Unit>
 		<Unit filename="/Users/nsena/Documents/Devel/raytracer/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
