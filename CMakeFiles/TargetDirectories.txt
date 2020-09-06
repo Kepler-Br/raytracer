@@ -1,3 +1,0 @@
-/home/kepler-br/Documents/Devel/CPP/raytracer/CMakeFiles/rebuild_cache.dir
-/home/kepler-br/Documents/Devel/CPP/raytracer/CMakeFiles/edit_cache.dir
-/home/kepler-br/Documents/Devel/CPP/raytracer/CMakeFiles/raytracer.dir
