@@ -100,7 +100,7 @@ static void render(t_mainloop *this)
             if(this->scene->intersect(this->scene, &intersection))
             {
 				t_vec3 result_color;
-            	result_color = (t_vec3){{intersection.shape->absorb_color.x + this->scene->ambient_color.x, intersection.shape->absorb_color.y + this->scene->ambient_color.y, intersection.shape->absorb_color.z + this->scene->ambient_color.z}};
+//            	result_color = (t_vec3){{intersection.shape->absorb_color.x + this->scene->ambient_color.x, intersection.shape->absorb_color.y + this->scene->ambient_color.y, intersection.shape->absorb_color.z + this->scene->ambient_color.z}};
 
 
                 float dist;
@@ -109,13 +109,13 @@ static void render(t_mainloop *this)
                 	t_vec3 light_color = this->scene->cached_point_lights[0]->color;
 
 					float dot = vec3_vec3_dot_val(intersection.normal, vec3_normalize_val(vec3_vec3_sub_val(this->scene->cached_point_lights[0]->position, intersection.position(&intersection))));
-					result_color = (t_vec3){{light_color.x*dot*1.0f/dist - result_color.x, light_color.y*dot*1.0f/dist - result_color.y, light_color.z*dot*1.0f/dist - result_color.z}};
+					result_color = (t_vec3){{light_color.x*dot*1.0f/dist + this->scene->ambient_color.x - intersection.shape->absorb_color.x, light_color.y*dot*1.0f/dist + this->scene->ambient_color.y  - intersection.shape->absorb_color.y, light_color.z*dot*1.0f/dist  + this->scene->ambient_color.z - intersection.shape->absorb_color.z}};
 //					printf("Dot: %f\n", dot);
 //					result_color = (t_vec3){{light_color.x, light_color.y, light_color.z}};
 //					result_color = (t_vec3){{0, 0, 0}};
 				}
                 else
-					result_color = (t_vec3){{this->scene->ambient_color.x - result_color.x, this->scene->ambient_color.y - result_color.y, this->scene->ambient_color.z - result_color.z}};
+					result_color = (t_vec3){{this->scene->ambient_color.x - intersection.shape->absorb_color.x, this->scene->ambient_color.y - intersection.shape->absorb_color.y, this->scene->ambient_color.z - intersection.shape->absorb_color.z}};
 //					result_color = (t_vec3){{0, 0, 0}};
 				vec3_clamp_ptr(&result_color, 0.0f, 1.0f);
             	this->framebuffer->set_pixel(this->framebuffer, (t_ivec2){{x, y}}, result_color);
@@ -134,22 +134,36 @@ static void postrender(t_mainloop *this)
 
 void input(t_mainloop *this)
 {
-	SDL_Event event;
-	while(SDL_PollEvent(&event))
-	{
-		switch( event.type ){
-			case SDL_KEYDOWN:
-				if (event.key.keysym.sym == SDLK_ESCAPE)
-					this->is_running = 0;
-				break;
-			case SDL_WINDOWEVENT:
-				if (event.window.event == SDL_WINDOWEVENT_CLOSE)
-					this->is_running = 0;
-				break;
-			default:
-				break;
-		}
-	}
+    static float x_angle = 0.0f;
+    static float y_angle = 0.0f;
+
+    this->input_manager->update(this->input_manager);
+    if(this->input_manager->is_close_event_pending ||
+            this->input_manager->is_key_down(this->input_manager, SDLK_ESCAPE))
+        this->stop(this);
+    if(this->input_manager->is_key_down(this->input_manager, SDLK_UP))
+        x_angle -= this->deltatime*1.0f;
+    if(this->input_manager->is_key_down(this->input_manager, SDLK_DOWN))
+        x_angle += this->deltatime*1.0f;
+    if(this->input_manager->is_key_down(this->input_manager, SDLK_LEFT))
+        y_angle += this->deltatime*1.0f;
+    if(this->input_manager->is_key_down(this->input_manager, SDLK_RIGHT))
+        y_angle -= this->deltatime*1.0f;
+    t_vec3 up;
+    up.x = 100.0f * sinf(x_angle) * cosf(y_angle);
+    up.y = 100.0f * cosf(x_angle);
+    up.z = 100.0f * sinf(x_angle) * sinf(y_angle);
+    this->camera->look_at(this->camera, (t_vec3){{-5.0f, 1.0f, 0.0f}}, up, (t_vec3){{0.0f, -1.0f, 0.0f}});
+//    if(this->input_manager->mouse_delta.x > 0 || this->input_manager->mouse_delta.y > 0)
+//    {
+//        x_angle += -(float)this->input_manager->mouse_delta.y/500.0f;
+//        y_angle += -(float)this->input_manager->mouse_delta.x/500.0f;
+//        t_vec3 up;
+//        up.x = 10.0f * sinf(x_angle) * cosf(y_angle);
+//        up.y = 10.0f * cosf(x_angle);
+//        up.z = 10.0f * sinf(x_angle) * sinf(y_angle);
+//        this->camera->look_at(this->camera, (t_vec3){{-5.0f, 1.0f, 0.0f}}, up, (t_vec3){{0.0f, -1.0f, 0.0f}});
+//    }
 }
 
 void stop(struct s_mainloop *this)
@@ -183,16 +197,29 @@ t_mainloop *construct_mainloop(t_ivec2 resolution, const char * const title)
 
     this->check_timer = construct_check_timer();
     this->sdl_instance = construct_sdl_instance(resolution, title);
+    this->input_manager = construct_input_manager(this->sdl_instance);
     this->framebuffer = construct_framebuffer(resolution, this->sdl_instance);
     this->camera = construct_camera(M_PI/4.0f, (float)this->framebuffer->resolution.x/this->framebuffer->resolution.y);
     this->camera->look_at(this->camera, (t_vec3){{-5.0f, 1.0f, 0.0f}}, (t_vec3){{0.0f, 0.0f, 0.0f}}, (t_vec3){{0.0f, -1.0f, 0.0f}});
-    this->render_mask = create_render_mask(resolution.x * resolution.y, 0);
+    this->render_mask = create_render_mask(resolution.x * resolution.y, 90);
     this->scene = construct_scene();
-    this->scene->ambient_color = (t_vec3){{0.3f, 0.0f, 0.3f}};
+    this->scene->ambient_color = (t_vec3){{0.3f, 0.3f, 0.3f}};
 
 	t_shape *shape;
     shape = construct_shape_plane((t_vec3){{0.0f, 0.0f, 0.0f}}, (t_vec3){{0.0f, 1.0f, 0.0f}}, "plane1");
-	shape->absorb_color = (t_vec3){{1.0f, 0.0f, 0.0f}};
+    shape->absorb_color = (t_vec3){{1.0f - 1.0f, 1.0f - 0.0f, 1.0f - 0.0f}};
+    this->scene->add_shape(this->scene, &shape);
+    shape = construct_shape_plane((t_vec3){{0.0f, 6.0f, 0.0f}}, (t_vec3){{0.0f, -1.0f, 0.0f}}, "plane1");
+    shape->absorb_color = (t_vec3){{1.0f - 0.0f, 1.0f - 1.0f, 1.0f - 1.0f}};
+    this->scene->add_shape(this->scene, &shape);
+    shape = construct_shape_plane((t_vec3){{0.0f, 0.0f, 5.0f}}, (t_vec3){{0.0f, 0.0f, -1.0f}}, "plane1");
+    shape->absorb_color = (t_vec3){{1.0f - 0.0f, 1.0f - 0.0f, 1.0f - 1.0f}};
+    this->scene->add_shape(this->scene, &shape);
+    shape = construct_shape_plane((t_vec3){{0.0f, 0.0f, -5.0f}}, (t_vec3){{0.0f, 0.0f, 1.0f}}, "plane1");
+    shape->absorb_color = (t_vec3){{1.0f - 1.0f, 1.0f - 0.0f, 1.0f - 1.0f}};
+    this->scene->add_shape(this->scene, &shape);
+    shape = construct_shape_plane((t_vec3){{5.0f, 0.0f, 0.0f}}, (t_vec3){{-1.0f, 0.0f, 0.0f}}, "plane1");
+    shape->absorb_color = (t_vec3){{1.0f - 0.0f, 1.0f - 1.0f, 1.0f - 0.0f}};
     this->scene->add_shape(this->scene, &shape);
 	shape = construct_shape_sphere((t_vec3){{0.0f, 1.0f, 0.0f}}, 1.0f, "sphere1");
 	shape->absorb_color = (t_vec3){{1.0f - 1.0f, 1.0f - 0.0f, 1.0f - 1.0f}};

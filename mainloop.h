@@ -6,12 +6,14 @@
 #include "camera.h"
 #include "render_mask.h"
 #include "scene.h"
+#include "input_manager.h"
 
 typedef struct s_mainloop
 {
     t_check_timer *check_timer;
     t_framebuffer *framebuffer;
     t_sdl_instance *sdl_instance;
+    t_input_manager *input_manager;
     t_camera *camera;
     t_scene *scene;
     char *render_mask;
