@@ -4,153 +4,163 @@
 	<Project>
 		<Option title="raytracer"/>
 		<Option makefile_is_custom="1"/>
-		<Option compiler="clang"/>
+		<Option compiler="gcc"/>
 		<Option virtualFolders="CMake Files\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="/home/kepler-br/Documents/Devel/CPP/raytracer"/>
+				<Option working_dir="/Users/nsena/Documents/Devel/raytracer"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
-				<Option working_dir="/home/kepler-br/Documents/Devel/CPP/raytracer"/>
+				<Option working_dir="/Users/nsena/Documents/Devel/raytracer"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
-				<Option working_dir="/home/kepler-br/Documents/Devel/CPP/raytracer"/>
+				<Option working_dir="/Users/nsena/Documents/Devel/raytracer"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="raytracer">
-				<Option output="/home/kepler-br/Documents/Devel/CPP/raytracer/raytracer" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/kepler-br/Documents/Devel/CPP/raytracer"/>
+				<Option output="/Users/nsena/Documents/Devel/raytracer/raytracer" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/nsena/Documents/Devel/raytracer"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
-				<Option compiler="clang"/>
+				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/kepler-br/.brew/Cellar/sdl2/2.0.12_1/include"/>
-					<Add directory="/usr/include/SDL"/>
-					<Add directory="/home/kepler-br/Documents/Devel/CPP/raytracer/double_linked_list/includes"/>
-					<Add directory="/home/kepler-br/Documents/Devel/CPP/raytracer/c_linear_algebra/includes"/>
-					<Add directory="/home/kepler-br/Documents/Devel/CPP/raytracer/libft"/>
+					<Add directory="/Users/nsena/.brew/Cellar/sdl2/2.0.12_1/include"/>
+					<Add directory="/usr/include/SDL2"/>
+					<Add directory="/Users/nsena/Documents/Devel/raytracer/double_linked_list/includes"/>
+					<Add directory="/Users/nsena/Documents/Devel/raytracer/c_linear_algebra/includes"/>
+					<Add directory="/Users/nsena/Documents/Devel/raytracer/libft"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 raytracer"/>
-					<CompileFile command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 raytracer"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="raytracer/fast">
-				<Option output="/home/kepler-br/Documents/Devel/CPP/raytracer/raytracer" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/kepler-br/Documents/Devel/CPP/raytracer"/>
+				<Option output="/Users/nsena/Documents/Devel/raytracer/raytracer" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/nsena/Documents/Devel/raytracer"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
-				<Option compiler="clang"/>
+				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/kepler-br/.brew/Cellar/sdl2/2.0.12_1/include"/>
-					<Add directory="/usr/include/SDL"/>
-					<Add directory="/home/kepler-br/Documents/Devel/CPP/raytracer/double_linked_list/includes"/>
-					<Add directory="/home/kepler-br/Documents/Devel/CPP/raytracer/c_linear_algebra/includes"/>
-					<Add directory="/home/kepler-br/Documents/Devel/CPP/raytracer/libft"/>
+					<Add directory="/Users/nsena/.brew/Cellar/sdl2/2.0.12_1/include"/>
+					<Add directory="/usr/include/SDL2"/>
+					<Add directory="/Users/nsena/Documents/Devel/raytracer/double_linked_list/includes"/>
+					<Add directory="/Users/nsena/Documents/Devel/raytracer/c_linear_algebra/includes"/>
+					<Add directory="/Users/nsena/Documents/Devel/raytracer/libft"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 raytracer/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/home/kepler-br/Documents/Devel/CPP/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 raytracer/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/nsena/Documents/Devel/raytracer/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/camera.c">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/camera.c">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/camera.h">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/camera.h">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/check_timer.c">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/check_timer.c">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/check_timer.h">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/check_timer.h">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/color.c">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/color.c">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/color.h">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/color.h">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/framebuffer.c">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/framebuffer.c">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/framebuffer.h">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/framebuffer.h">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/input_manager.c">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/input_manager.c">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/input_manager.h">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/input_manager.h">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/main.c">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/main.c">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/mainloop.c">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/mainloop.c">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/mainloop.h">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/mainloop.h">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/point_light.h">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/point_light.h">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/ray.c">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/ray.c">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/ray.h">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/ray.h">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/render_mask.c">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/render_mask.c">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/render_mask.h">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/render_mask.h">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/scene.c">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/scene.c">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/scene.h">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/scene.h">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/sdl_instance.c">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/sdl_instance.c">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/sdl_instance.h">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/sdl_instance.h">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/shape.c">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/shape.c">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/shape.h">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/shape.h">
 			<Option target="raytracer"/>
 		</Unit>
-		<Unit filename="/home/kepler-br/Documents/Devel/CPP/raytracer/CMakeLists.txt">
+		<Unit filename="/Users/nsena/Documents/Devel/raytracer/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
 	</Project>
