@@ -60,6 +60,11 @@ void opencl_info()
 	cl_device_id *device_ids;
 
 	clGetPlatformIDs(0, 0, &total_platforms);
+	if(total_platforms == 0)
+    {
+	    printf("No platforms found.\n");
+	    return;
+    }
 	printf("Total platforms: %u\n", total_platforms);
 
 	platform_ids = malloc(sizeof(cl_platform_id)*total_platforms);
@@ -223,14 +228,40 @@ int main()
 	err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
 
 	if (err != CL_SUCCESS) {
+	    size_t length;
+	    printf("Failed to build program\n");
 		char buf[2048];
-		std::cout << "Error: Failed to build program" << std::endl;
-		clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, sizeof(buf), buf, &length);
-		std::cout << buf << std::endl;
-		std::getchar();
-		running = false;
+		clGetProgramBuildInfo(program, best.device_id, CL_PROGRAM_BUILD_LOG, sizeof(buf), buf, &length);
+		printf("%s\n", buf);
 		exit(1);
 	}
+    main_kernel = clCreateKernel(program, "main_kernel", &err);
+    cl_mem change_array;
+    const cl_uint array_length = 800*600;
+    cl_int *array_to_change = malloc(sizeof(cl_int)*array_length);
+    cl_uint i = 0;
+//    ft_memset(array_to_change, 10, sizeof(cl_int)*array_length);
+    while (i < array_length)
+    {
+        printf("%u ",array_to_change[i]);
+        i++;
+    }
+    printf("\n");
+    change_array = clCreateBuffer(context, CL_MEM_WRITE_ONLY, array_length * sizeof(cl_int), NULL, &err);
+    err = clSetKernelArg(main_kernel, 0, sizeof(cl_mem), (void*)&change_array);
+//    err = clEnqueueWriteBuffer(commands, change_array, CL_TRUE, 0,
+//                               array_length * sizeof(cl_int), array_to_change, 0, NULL, NULL);
+    size_t local_work_size = 10;
+    err = clEnqueueNDRangeKernel(commands, main_kernel, 1, NULL, &array_length, &local_work_size, 0, NULL, NULL);
+    err = clFinish(commands);
+    err = clEnqueueReadBuffer(commands, change_array, CL_TRUE, 0, array_length * sizeof(cl_int), array_to_change, 0, NULL, NULL);
+    i = 0;
+    while (i < array_length)
+    {
+//        printf("%u ",array_to_change[i]);
+        i++;
+    }
+    printf("\n");
 //    t_mainloop *mainloop;
 //    mainloop = construct_mainloop((t_ivec2){{800, 600}}, "Realtime raytrasing");
 //

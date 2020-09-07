@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 project(raytracer C)
 
-set(CMAKE_C_STANDARD 90)
+set(CMAKE_C_STANDARD 99)
+SET(CMAKE_BUILD_TYPE Debug)
+SET(CL_TARGET_OPENCL_VERSION 120)
 
 INCLUDE_DIRECTORIES(~/.brew/Cellar/sdl2/2.0.12_1/include)
 INCLUDE_DIRECTORIES(/usr/include)
