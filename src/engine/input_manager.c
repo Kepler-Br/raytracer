@@ -5,13 +5,9 @@ void update(struct s_input_manager *this)
     SDL_Event event;
     t_ivec2 mouse_move;
 
-
-
-
     SDL_GetMouseState(&mouse_move.x, &mouse_move.y);
     this->mouse_delta = ivec2_ivec2_sub(&mouse_move, &this->current_mouse);
     this->current_mouse = mouse_move;
-
     while(SDL_PollEvent(&event))
     {
         if(event.type == SDL_WINDOWEVENT)
@@ -68,4 +64,9 @@ t_input_manager *construct_input_manager(t_sdl_instance *sdl_instance)
     this->update = &update;
     this->is_key_down = &is_key_down;
     return (this);
+}
+
+void destruct_input_manager(t_input_manager *this)
+{
+	ft_destroy_t_map(this->map);
 }

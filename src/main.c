@@ -1,270 +1,77 @@
 #include <stdio.h>
-#include "mainloop.h"
+#include "engine/mainloop.h"
 
-void print_platform_info(cl_platform_id platform)
+#include "ocl_wrapper/ocl_wrapper.h"
+
+#include <stdio.h>
+#include "engine/mainloop.h"
+
+#include "ocl_wrapper/ocl_wrapper.h"
+#include "./engine/state.h"
+#include "./engine/states/raymarch_state/raytracing_state.h"
+
+void print_int_array(cl_int *array, size_t size)
 {
-	char *line;
-	const size_t line_size = 1000;
-
-	line = malloc(sizeof(char)*line_size);
-	clGetPlatformInfo(platform, CL_PLATFORM_PROFILE, line_size, line, NULL);
-	printf("Profile: %s\n", line);
-	clGetPlatformInfo(platform, CL_PLATFORM_VERSION, line_size, line, NULL);
-	printf("Version: %s\n", line);
-	clGetPlatformInfo(platform, CL_PLATFORM_NAME, line_size, line, NULL);
-	printf("Name: %s\n", line);
-	clGetPlatformInfo(platform, CL_PLATFORM_VENDOR, line_size, line, NULL);
-	printf("Vendor: %s\n", line);
-	free(line);
-}
-
-void print_device_info_string(cl_device_id device, uint type, char *what_to_print)
-{
-	char *line;
-	size_t line_size;
-
-	clGetDeviceInfo(device, type, 0, NULL, &line_size);
-	line = (char*)malloc(sizeof(char)*line_size);
-	clGetDeviceInfo(device, type, line_size, line, NULL);
-	printf("%s: %s\n", what_to_print, line);
-	free(line);
-}
-
-void print_device_info_full(cl_device_id device)
-{
-	cl_uint num2;
-	cl_ulong num3;
-
-	print_device_info_string(device, CL_DEVICE_NAME, "Device name");
-	clGetDeviceInfo(device, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(cl_uint), &num2, NULL);
-	printf("Max compute units: %u\n", num2);
-	clGetDeviceInfo(device, CL_DEVICE_MAX_CLOCK_FREQUENCY, sizeof(cl_uint), &num2, NULL);
-	printf("Max clock frequency: %u MHz(%u.%u GHz)\n", num2, num2/1000, num2%1000);
-	clGetDeviceInfo(device, CL_DEVICE_TYPE, sizeof(cl_ulong), &num3, NULL);
-	printf("Device type: ");
-	if(num3 == CL_DEVICE_TYPE_CPU)
-		printf("CPU");
-	else if (num3 == CL_DEVICE_TYPE_GPU)
-		printf("GPU");
-	else
-		printf("Another");
+	cl_uint i = 0;
+	while (i < size)
+	{
+		printf("%u ",array[i]);
+		i++;
+	}
 	printf("\n");
 }
-
-void opencl_info()
-{
-	cl_uint total_platforms;
-	cl_platform_id *platform_ids;
-	cl_uint i;
-	cl_uint total_devices;
-	cl_device_id *device_ids;
-
-	clGetPlatformIDs(0, 0, &total_platforms);
-	if(total_platforms == 0)
-    {
-	    printf("No platforms found.\n");
-	    return;
-    }
-	printf("Total platforms: %u\n", total_platforms);
-
-	platform_ids = malloc(sizeof(cl_platform_id)*total_platforms);
-	clGetPlatformIDs(total_platforms, platform_ids, 0);
-
-	i = 0;
-	printf("Platforms: \n----------\n");
-	while(i < total_platforms)
-	{
-		print_platform_info(platform_ids[i]);
-		i++;
-		printf("----------\n");
-	}
-	printf("\n");
-
-	clGetDeviceIDs( platform_ids[0], CL_DEVICE_TYPE_ALL, NULL, NULL, &total_devices);
-	printf("Total devices: %u\n", total_devices);
-	device_ids = malloc(sizeof(cl_device_id)*total_devices);
-	clGetDeviceIDs(platform_ids[0], CL_DEVICE_TYPE_ALL, total_devices, device_ids, NULL);
-	i = 0;
-	printf("Devices: \n----------\n");
-	while(i < total_devices)
-	{
-		print_device_info_full(device_ids[i]);
-		i++;
-		printf("----------\n");
-	}
-}
-
-typedef struct s_ocl_device
-{
-	cl_platform_id platform_id;
-	cl_device_id device_id;
-	cl_uint freq;
-	cl_uint compute_units;
-} t_ocl_device;
-
-cl_device_id get_device_max_fequency_from_platform(cl_platform_id platform, cl_uint *max_freq)
-{
-	cl_uint i;
-	cl_uint total_devices;
-	cl_device_id *device_ids;
-	cl_uint freq;
-	cl_device_id best_device;
-
-	clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, NULL, NULL, &total_devices);
-	device_ids = malloc(sizeof(cl_device_id)*total_devices);
-	clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, total_devices, device_ids, NULL);
-	i = 0;
-	while(i < total_devices)
-	{
-		clGetDeviceInfo(device_ids[i], CL_DEVICE_MAX_CLOCK_FREQUENCY, sizeof(cl_uint), &freq, NULL);
-		if(*max_freq == 0 || *max_freq < freq)
-		{
-			best_device = device_ids[i];
-			*max_freq = freq;
-		}
-		i++;
-	}
-	free(device_ids);
-	return (best_device);
-}
-
-t_ocl_device get_device_max_frequency()
-{
-	cl_uint total_platforms;
-	cl_platform_id *platform_ids;
-	cl_uint i;
-	t_ocl_device cur;
-	t_ocl_device best;
-
-	clGetPlatformIDs(0, 0, &total_platforms);
-	platform_ids = malloc(sizeof(cl_platform_id)*total_platforms);
-	clGetPlatformIDs(total_platforms, platform_ids, 0);
-	i = 0;
-	cur.freq = 0;
-	while (i < total_platforms)
-	{
-		best.platform_id = platform_ids[i];
-		best.freq = 0;
-		best.device_id = get_device_max_fequency_from_platform(platform_ids[i], &best.freq);
-		if(cur.freq == 0 || cur.freq < best.freq)
-			cur = best;
-		i++;
-	}
-	free(platform_ids);
-	return (best);
-}
-
-cl_device_id get_device_max_compute_units_from_platform(cl_platform_id platform, cl_uint *max_compute_units)
-{
-	cl_uint i;
-	cl_uint total_devices;
-	cl_device_id *device_ids;
-	cl_uint compute_units;
-	cl_device_id best_device;
-
-	clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, NULL, NULL, &total_devices);
-	device_ids = malloc(sizeof(cl_device_id)*total_devices);
-	clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, total_devices, device_ids, NULL);
-	i = 0;
-	while(i < total_devices)
-	{
-		clGetDeviceInfo(device_ids[i], CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(cl_uint), &compute_units, NULL);
-		if(*max_compute_units == 0 || *max_compute_units < compute_units)
-		{
-			best_device = device_ids[i];
-			*max_compute_units = compute_units;
-		}
-		i++;
-	}
-	free(device_ids);
-	return (best_device);
-}
-
-t_ocl_device get_device_max_compute_units()
-{
-	cl_uint total_platforms;
-	cl_platform_id *platform_ids;
-	cl_uint i;
-	t_ocl_device cur;
-	t_ocl_device best;
-
-	clGetPlatformIDs(0, 0, &total_platforms);
-	platform_ids = malloc(sizeof(cl_platform_id)*total_platforms);
-	clGetPlatformIDs(total_platforms, platform_ids, 0);
-	i = 0;
-	cur.compute_units = 0;
-	while (i < total_platforms)
-	{
-		best.platform_id = platform_ids[i];
-		best.compute_units = 0;
-		best.device_id = get_device_max_compute_units_from_platform(platform_ids[i], &best.compute_units);
-		if(cur.compute_units == 0 || cur.compute_units < best.compute_units)
-			cur = best;
-		i++;
-	}
-	free(platform_ids);
-	return (best);
-}
-
-#include "tools.h"
 
 int main()
 {
 //	opencl_info();
-	t_ocl_device best = get_device_max_compute_units();
-	print_platform_info(best.platform_id);
-	print_device_info_full(best.device_id);
+//	t_ocl_device best = get_device_max_compute_units();
+//	print_platform_info(best.platform_id);
+//	print_device_info_full(best.device_id);
 
-	cl_context context;
-	cl_command_queue commands;
-	cl_program program;
-	cl_kernel main_kernel;
-	cl_int err;
-
-	context = clCreateContext(0, 1, &best.device_id, NULL, NULL, &err);
-	commands = clCreateCommandQueue(context, best.device_id, 0, &err);
-	char *program_text = read_file("./OpenCLPrograms/helloworld.cl");
-	program = clCreateProgramWithSource(context, 1, (const char **)&program_text, NULL, &err);
-	err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
-
-	if (err != CL_SUCCESS) {
-	    size_t length;
-	    printf("Failed to build program\n");
-		char buf[2048];
-		clGetProgramBuildInfo(program, best.device_id, CL_PROGRAM_BUILD_LOG, sizeof(buf), buf, &length);
-		printf("%s\n", buf);
-		exit(1);
-	}
-    main_kernel = clCreateKernel(program, "main_kernel", &err);
-    cl_mem change_array;
-    const cl_uint array_length = 800*600;
-    cl_int *array_to_change = malloc(sizeof(cl_int)*array_length);
-    cl_uint i = 0;
-//    ft_memset(array_to_change, 10, sizeof(cl_int)*array_length);
-    while (i < array_length)
-    {
-        printf("%u ",array_to_change[i]);
-        i++;
-    }
-    printf("\n");
-    change_array = clCreateBuffer(context, CL_MEM_WRITE_ONLY, array_length * sizeof(cl_int), NULL, &err);
-    err = clSetKernelArg(main_kernel, 0, sizeof(cl_mem), (void*)&change_array);
-//    err = clEnqueueWriteBuffer(commands, change_array, CL_TRUE, 0,
-//                               array_length * sizeof(cl_int), array_to_change, 0, NULL, NULL);
-    size_t local_work_size = 10;
-    err = clEnqueueNDRangeKernel(commands, main_kernel, 1, NULL, &array_length, &local_work_size, 0, NULL, NULL);
-    err = clFinish(commands);
-    err = clEnqueueReadBuffer(commands, change_array, CL_TRUE, 0, array_length * sizeof(cl_int), array_to_change, 0, NULL, NULL);
-    i = 0;
-    while (i < array_length)
-    {
-//        printf("%u ",array_to_change[i]);
-        i++;
-    }
-    printf("\n");
-//    t_mainloop *mainloop;
-//    mainloop = construct_mainloop((t_ivec2){{800, 600}}, "Realtime raytrasing");
+//	cl_context context;
+//	cl_command_queue commands;
+//	cl_program program;
+//	cl_kernel main_kernel;
+//	cl_device_id device_id;
+//	cl_mem mem_array_obj;
 //
-//    mainloop->run(mainloop);
-    return 0;
+//	device_id = ocl_get_device(OCL_WRAPPER_MAX_COMPUTE_UNITS);
+//	context = ocl_create_context(device_id);
+//	commands = ocl_create_command_queue(context, device_id);
+//	program = ocl_load_and_build_program(context, device_id, "./OpenCLPrograms/helloworld.cl");
+//	main_kernel = ocl_get_kernel(program, "main_kernel");
+//
+//
+//	const size_t array_length = 80*60;
+//	cl_int *array_to_change = malloc(sizeof(cl_int)*array_length);
+//	print_int_array(array_to_change, array_length);
+//	mem_array_obj = ocl_create_buffer(context, CL_MEM_WRITE_ONLY, array_length * sizeof(cl_int), NULL);
+//	ocl_set_kernel_arg(main_kernel, 0, sizeof(cl_mem), (void*)&mem_array_obj);
+//	ocl_enqueue_write_buffer(commands, mem_array_obj, array_length * sizeof(cl_int), (void *)array_to_change);
+//	size_t local_work_size = 1;
+//	ocl_enqueue_nd_range_kernel(commands, main_kernel, 1, &array_length, &local_work_size);
+//	ocl_finish(commands);
+//	ocl_enqueue_read_buffer(commands, mem_array_obj, array_length * sizeof(cl_int), (void *)array_to_change);
+//	print_int_array(array_to_change, array_length);
+//
+//	clReleaseMemObject(mem_array_obj);
+//	clReleaseKernel(main_kernel);
+//	clReleaseProgram(program);
+//	clReleaseDevice(device_id);
+//	clReleaseCommandQueue(commands);
+//	clReleaseContext(context);
+
+
+
+    t_mainloop *mainloop;
+    t_state *raytracing_state;
+	t_ivec2 resolution = (t_ivec2){{800, 600}};
+
+    mainloop = construct_mainloop(resolution, "Realtime raytrasing");
+	raytracing_state = construct_raytracing_state(mainloop->input_manager, mainloop->sdl_instance, mainloop);
+	mainloop->push_state(mainloop, raytracing_state);
+    mainloop->run(mainloop);
+	destruct_mainloop(mainloop);
+	free(mainloop);
+	return 0;
 }
