@@ -1,25 +1,6 @@
-#include <stdio.h>
 #include "engine/mainloop.h"
-
 #include "ocl_wrapper/ocl_wrapper.h"
-
-#include <stdio.h>
-#include "engine/mainloop.h"
-
-#include "ocl_wrapper/ocl_wrapper.h"
-#include "./engine/state.h"
-#include "./engine/states/raymarch_state/raytracing_state.h"
-
-void print_int_array(cl_int *array, size_t size)
-{
-	cl_uint i = 0;
-	while (i < size)
-	{
-		printf("%u ",array[i]);
-		i++;
-	}
-	printf("\n");
-}
+#include "./states/raymarch_state/raytracing_state.h"
 
 int main()
 {

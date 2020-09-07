@@ -1,13 +1,14 @@
 #include "raytracing_state.h"
 #include <SDL2/SDL.h>
 #include <stdlib.h>
-#include "../../../ocl_wrapper/ocl_wrapper.h"
+#include "../../ocl_wrapper/ocl_wrapper.h"
 
 static void			pre_render(struct s_state *this)
 {
 	t_raytracing_state *state;
 
 	state = (t_raytracing_state *)this->instance_struct;
+	state->framebuffer->lock(state->framebuffer);
 }
 
 static void			render(struct s_state *this)
@@ -22,6 +23,8 @@ static void			post_render(struct s_state *this)
 	t_raytracing_state *state;
 
 	state = (t_raytracing_state *)this->instance_struct;
+	state->framebuffer->unlock(state->framebuffer);
+	state->framebuffer->put(state->framebuffer);
 }
 
 static void			update(struct s_state *this, float deltatime)

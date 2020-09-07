@@ -1,12 +1,12 @@
 #ifndef RAYTRACER_RAYTRACING_STATE_H
 #define RAYTRACER_RAYTRACING_STATE_H
 
-#include "../../state.h"
-#include "../../input_manager.h"
-#include "../../framebuffer.h"
+#include "../../engine/state.h"
+#include "../../engine/input_manager.h"
+#include "../../engine/framebuffer.h"
 #include "camera.h"
 #include "scene.h"
-#include "../../mainloop.h"
+#include "../../engine/mainloop.h"
 
 typedef struct	s_raytracing_state
 {

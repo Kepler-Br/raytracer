@@ -30,7 +30,8 @@ cl_program			ocl_load_and_build_program(cl_context context, cl_device_id device,
 	cl_program program;
 	cl_int err;
 
-	const char *program_text = read_file(program_path);
+	char *program_text;
+	program_text = read_file(program_path);
 	if(program_text == NULL)
 	{
 		printf("Cannot open program file: %s", program_path);
@@ -43,6 +44,7 @@ cl_program			ocl_load_and_build_program(cl_context context, cl_device_id device,
 		exit(0);
 	}
 	build_program(program, device, program_path);
+	free(program_text);
 	return (program);
 }
 
