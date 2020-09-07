@@ -64,7 +64,6 @@ void limit_fps(struct s_mainloop *this)
 void push_state(struct s_mainloop *this, t_state *state)
 {
 	SDL_assert(state != NULL);
-//	this->top_state = state;
 	double_ll_push_front((void *)&state, sizeof(t_state **), &this->state_stack, NULL);
 	this->top_state = *(t_state **)double_ll_front(this->state_stack)->content;
 }

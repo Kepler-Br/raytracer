@@ -5,12 +5,6 @@ static void init(struct s_framebuffer *this, t_ivec2 resolution)
     this->resolution = resolution;
 	free(this->pixels);
 	this->pixel_count = resolution.x * resolution.y;
-	this->pixels = malloc(this->pixel_count * sizeof(cl_char) * this->color_count);
-    if(this->pixels == NULL)
-    {
-        SDL_LogError(SDL_LOG_CATEGORY_ASSERT, "%s", "Cannot malloc pixel framebuffer");
-        exit(0);
-    }
     if(this->framebuffer != NULL)
         this->destroy(this);
     this->framebuffer = SDL_CreateTexture(this->sdl_instance->renderer,
@@ -28,7 +22,7 @@ static void lock(t_framebuffer *this)
     static int pitch;
 
     this->is_locked = 1;
-    if(SDL_LockTexture(this->framebuffer, NULL, (void**)&this->pixels, &pitch))
+    if(SDL_LockTexture(this->framebuffer, NULL, (void **)&this->pixels, &pitch))
     {
         SDL_LogError(SDL_LOG_CATEGORY_ASSERT, "%s: %s", "Cannot lock framebuffer", SDL_GetError());
         exit(0);
@@ -66,7 +60,7 @@ t_framebuffer *construct_framebuffer(const t_ivec2 resolution, t_sdl_instance *s
     this->pixels = NULL;
     this->framebuffer = NULL;
     this->sdl_instance = sdl_instance;
-	this->color_count = 3;
+	this->color_count = 4;
 
     this->init = &init;
     this->unlock = &unlock;
@@ -80,6 +74,6 @@ t_framebuffer *construct_framebuffer(const t_ivec2 resolution, t_sdl_instance *s
 
 void			destruct_framebuffer(t_framebuffer *this)
 {
-	free(this->pixels);
+	SDL_DestroyTexture(this->framebuffer);
 	this->destroy(this);
 }
