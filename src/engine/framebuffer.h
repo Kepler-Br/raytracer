@@ -8,11 +8,12 @@
 
 typedef struct s_framebuffer
 {
-    uint32_t *pixels;
+    cl_char *pixels;
     t_ivec2 resolution;
     SDL_Texture *framebuffer;
     t_sdl_instance *sdl_instance;
     size_t pixel_count;
+    size_t color_count;
     int is_locked;
 
     void (*init)(struct s_framebuffer *this, t_ivec2 resolution);
@@ -20,11 +21,10 @@ typedef struct s_framebuffer
     void (*unlock)(struct s_framebuffer *this);
     void (*destroy)(struct s_framebuffer *this);
     void (*put)(struct s_framebuffer *this);
-    uint32_t *(*get_pixel)(struct s_framebuffer *this, t_ivec2 position);
-    void (*set_pixel)(struct s_framebuffer *this, t_ivec2 position, t_vec3 color);
 
 } t_framebuffer;
 
-t_framebuffer *construct_framebuffer(const t_ivec2 resolution, t_sdl_instance *sdl_instance);
+t_framebuffer	*construct_framebuffer(const t_ivec2 resolution, t_sdl_instance *sdl_instance);
+void			destruct_framebuffer(t_framebuffer *framebuffer);
 
 #endif // FRAMEBUFFER_H

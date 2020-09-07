@@ -20,5 +20,6 @@ typedef struct s_input_manager
 } t_input_manager;
 
 t_input_manager *construct_input_manager(t_sdl_instance *sdl_instance);
+void destruct_input_manager(t_input_manager *this);
 
 #endif //RAYTRACER_INPUT_MANAGER_H
