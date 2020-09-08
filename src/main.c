@@ -1,12 +1,11 @@
-//#include "engine/mainloop.h"
-//#include "ocl_wrapper/ocl_wrapper.h"
-//#include "./states/raymarch_state/raytracing_state.h"
-//#ifdef __APPLE__
-//# include <OpenCL/cl.h>
-//#elif __linux__
-//# include <CL/cl.h>
-//#endif
-#include "vec3.h"
+#include "engine/mainloop.h"
+#include "ocl_wrapper/ocl_wrapper.h"
+#include "./states/raymarch_state/raytracing_state.h"
+#ifdef __APPLE__
+# include <OpenCL/cl.h>
+#elif __linux__
+# include <CL/cl.h>
+#endif
 
 
 int main()
@@ -49,19 +48,15 @@ int main()
 //	clReleaseCommandQueue(commands);
 //	clReleaseContext(context);
 
-    t_vec3 fuck;
-    fuck = vec3_vec3_sub_val((t_vec3){{2.0, 2.0, 2.0}}, (t_vec3){{1.0, 1.0, 1.0}});
-    printf("%f %f %f\n", fuck.x, fuck.y, fuck.z);
+    t_mainloop *mainloop;
+    t_state *raytracing_state;
+	t_ivec2 resolution = (t_ivec2){{800, 600}};
 
-//    t_mainloop *mainloop;
-//    t_state *raytracing_state;
-//	t_ivec2 resolution = (t_ivec2){{800, 600}};
-//
-//    mainloop = construct_mainloop(resolution, "Realtime raytrasing");
-//	raytracing_state = construct_raytracing_state(mainloop->input_manager, mainloop->sdl_instance, mainloop);
-//	mainloop->push_state(mainloop, raytracing_state);
-//    mainloop->run(mainloop);
-//	destruct_mainloop(mainloop);
-//	free(mainloop);
+    mainloop = construct_mainloop(resolution, "Realtime raytrasing");
+	raytracing_state = construct_raytracing_state(mainloop->input_manager, mainloop->sdl_instance, mainloop);
+	mainloop->push_state(mainloop, raytracing_state);
+    mainloop->run(mainloop);
+	destruct_mainloop(mainloop);
+	free(mainloop);
 	return 0;
 }
