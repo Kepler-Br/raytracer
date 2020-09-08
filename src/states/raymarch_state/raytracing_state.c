@@ -30,6 +30,10 @@ static void			pre_render(struct s_state *this)
     ocl_set_kernel_arg(state->main_kernel, 8, sizeof(cl_int), (void *)&state->scene_items->sphere_cache_size);
     ocl_set_kernel_arg(state->main_kernel, 9, sizeof(cl_mem), (void *)&state->mem_plane_list);
     ocl_set_kernel_arg(state->main_kernel, 10, sizeof(cl_int), (void *)&state->scene_items->plane_cache_size);
+    ocl_set_kernel_arg(state->main_kernel, 11, sizeof(cl_mem), (void *)&state->mem_point_light_list);
+    ocl_set_kernel_arg(state->main_kernel, 12, sizeof(cl_int), (void *)&state->scene_items->point_light_cache_size);
+    ocl_set_kernel_arg(state->main_kernel, 13, sizeof(cl_mem), (void *)&state->mem_material_list);
+    ocl_set_kernel_arg(state->main_kernel, 14, sizeof(cl_int), (void *)&state->scene_items->material_cache_size);
 }
 
 static void			render(struct s_state *this)
@@ -167,15 +171,32 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
     sphere = malloc(sizeof(t_shape_sphere));
     sphere->position = (t_vec3){{0.0f, 3.0f, 0.0f}};
     sphere->radius = 1.0f;
+    sphere->material_index = 1;
     raytracing_state->scene_items->add_sphere(raytracing_state->scene_items, sphere, "sphere2");
     t_shape_plane *plane;
     plane = malloc(sizeof(t_shape_plane));
     plane->normal = (t_vec3){{0.0f, -1.0f, 0.0f}};
     plane->position = (t_vec3){{0.0f, 0.0f, 0.0f}};
+    plane->material_index = 1;
     raytracing_state->scene_items->add_plane(raytracing_state->scene_items, plane, "plane1");
+    t_material *material;
+    material = malloc(sizeof(t_material));
+    material->absorb_color = (t_vec3){{0.0f, 1.0f, 0.0f}};
+    material->emissive_color = (t_vec3){{0.0f, 0.0f, 0.0f}};
+    material->is_emissive = CL_FALSE;
+    raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "purple_material");
+    material = malloc(sizeof(t_material));
+    material->absorb_color = (t_vec3){{1.0f, 0.0f, 0.0f}};
+    material->emissive_color = (t_vec3){{0.0f, 0.0f, 0.0f}};
+    material->is_emissive = CL_FALSE;
+    raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "red_material");
+    t_point_light *point_light;
+    point_light = malloc(sizeof(t_point_light));
+    point_light->emission_color = (t_vec3){{1.0f, 1.0f, 1.0f}};
+    point_light->position = (t_vec3){{0.0f, 5.0f, 0.0f}};
+    raytracing_state->scene_items->add_point_light(raytracing_state->scene_items, point_light, "main_point_light");
     raytracing_state->scene_items->list(raytracing_state->scene_items);
     raytracing_state->scene_items->cache_full(raytracing_state->scene_items);
-
 
 	raytracing_state->device_id = ocl_get_device(OCL_WRAPPER_MAX_COMPUTE_UNITS);
 	ocl_print_device_info_full(raytracing_state->device_id);
@@ -184,13 +205,20 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 	raytracing_state->program = ocl_load_and_build_program(raytracing_state->context, raytracing_state->device_id, "./OpenCLPrograms/helloworld.cl");
 	raytracing_state->main_kernel = ocl_get_kernel(raytracing_state->program, "main_kernel");
 
-	raytracing_state->mem_image = ocl_create_buffer(raytracing_state->context, CL_MEM_WRITE_ONLY, raytracing_state->framebuffer->pixel_count*raytracing_state->framebuffer->color_count*sizeof(cl_char), NULL);
+
+	size_t size;
+	size = raytracing_state->framebuffer->pixel_count*raytracing_state->framebuffer->color_count*sizeof(cl_char);
+	raytracing_state->mem_image = ocl_create_buffer(raytracing_state->context, CL_MEM_WRITE_ONLY, size, NULL);
     raytracing_state->mem_random_lookup = ocl_create_buffer(raytracing_state->context, CL_MEM_READ_ONLY, lookup_random_size*sizeof(cl_int), NULL);
     ocl_enqueue_write_buffer(raytracing_state->commands, raytracing_state->mem_random_lookup, lookup_random_size*sizeof(cl_int), raytracing_state->random_lookup);
     raytracing_state->mem_sphere_list = ocl_create_buffer(raytracing_state->context, CL_MEM_READ_ONLY, (size_t)raytracing_state->scene_items->sphere_cache_size*sizeof(t_shape_sphere), NULL);
     ocl_enqueue_write_buffer(raytracing_state->commands, raytracing_state->mem_sphere_list, (size_t)raytracing_state->scene_items->sphere_cache_size*sizeof(t_shape_sphere), raytracing_state->scene_items->cached_spheres);
     raytracing_state->mem_plane_list = ocl_create_buffer(raytracing_state->context, CL_MEM_READ_ONLY, (size_t)raytracing_state->scene_items->plane_cache_size*sizeof(t_shape_plane), NULL);
     ocl_enqueue_write_buffer(raytracing_state->commands, raytracing_state->mem_plane_list, (size_t)raytracing_state->scene_items->plane_cache_size*sizeof(t_shape_plane), raytracing_state->scene_items->cached_planes);
+    raytracing_state->mem_point_light_list = ocl_create_buffer(raytracing_state->context, CL_MEM_READ_ONLY, (size_t)raytracing_state->scene_items->point_light_cache_size*sizeof(t_point_light), NULL);
+    ocl_enqueue_write_buffer(raytracing_state->commands, raytracing_state->mem_point_light_list, (size_t)raytracing_state->scene_items->point_light_cache_size*sizeof(t_point_light), raytracing_state->scene_items->cached_point_lights);
+    raytracing_state->mem_material_list = ocl_create_buffer(raytracing_state->context, CL_MEM_READ_ONLY, (size_t)raytracing_state->scene_items->material_cache_size*sizeof(t_material), NULL);
+    ocl_enqueue_write_buffer(raytracing_state->commands, raytracing_state->mem_material_list, (size_t)raytracing_state->scene_items->material_cache_size*sizeof(t_material), raytracing_state->scene_items->cached_materials);
 
     state->pre_render = &pre_render;
 	state->render = &render;

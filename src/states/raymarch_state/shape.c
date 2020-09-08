@@ -35,7 +35,7 @@ t_shape *construct_shape_point_light(t_vec3 position, t_vec3 color, char *name)
     SDL_assert((shape->name = ft_strdup(name)) != NULL);
 
     point_light->position = position;
-    point_light->color = color;
+    point_light->emission_color = color;
     shape->inhereted = (void *)point_light;
     shape->shape_type = SHAPE_POINT_LIGHT;
     shape->destructor = &destruct_shape_point_light;

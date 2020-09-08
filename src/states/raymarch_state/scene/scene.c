@@ -56,21 +56,11 @@ static void private_cache_point_lights(t_scene_items *this)
     index = 0;
     while(index < this->point_light_cache_size)
     {
-        point_light = (*(t_shape **)itr->content)->inhereted;
+        point_light = (t_point_light*)(*(t_shape **)itr->content)->inhereted;
         this->cached_point_lights[index] = *point_light;
         itr = itr->next;
         index++;
     }
-}
-
-static void private_cache_shapes(t_scene_items *this, int shape_type)
-{
-    if(shape_type == SHAPE_SPHERE)
-        private_cache_spheres(this);
-    else if(shape_type == SHAPE_PLANE)
-        private_cache_planes(this);
-    else if(shape_type == SHAPE_POINT_LIGHT)
-        private_cache_point_lights(this);
 }
 
 static void private_cache_materials(t_scene_items *this)
@@ -81,13 +71,13 @@ static void private_cache_materials(t_scene_items *this)
 
     free(this->cached_materials);
     this->material_cache_size = double_ll_len(this->materials);
-    SDL_assert((this->cached_materials = malloc(sizeof(t_shape *) * this->material_cache_size)) != NULL);
+    SDL_assert((this->cached_materials = malloc(sizeof(t_material) * this->material_cache_size)) != NULL);
     itr = double_ll_back(this->materials);
     index = 0;
     while(index < this->material_cache_size)
     {
         named_material = *(t_named_material **)itr->content;
-        this->cached_materials[index] = *named_material->material;
+        this->cached_materials[index] = *((t_material *)named_material->material);
         itr = itr->next;
         index++;
     }
@@ -95,12 +85,12 @@ static void private_cache_materials(t_scene_items *this)
 
 static void cache(t_scene_items *this, int shape_type)
 {
-    if (shape_type == SHAPE_POINT_LIGHT)
-        private_cache_shapes(this, SHAPE_POINT_LIGHT);
-    else if (shape_type == SHAPE_SPHERE)
-        private_cache_shapes(this, SHAPE_SPHERE);
-    else if (shape_type == SHAPE_PLANE)
-        private_cache_shapes(this, SHAPE_PLANE);
+    if(shape_type == SHAPE_SPHERE)
+        private_cache_spheres(this);
+    else if(shape_type == SHAPE_PLANE)
+        private_cache_planes(this);
+    else if(shape_type == SHAPE_POINT_LIGHT)
+        private_cache_point_lights(this);
 }
 
 void cache_materials(struct s_scene_items *this)
@@ -110,31 +100,32 @@ void cache_materials(struct s_scene_items *this)
 
 static void cache_full(t_scene_items *this)
 {
-    private_cache_shapes(this, SHAPE_POINT_LIGHT);
-    private_cache_shapes(this, SHAPE_SPHERE);
-    private_cache_shapes(this, SHAPE_PLANE);
+    private_cache_point_lights(this);
+    private_cache_spheres(this);
+    private_cache_planes(this);
+    private_cache_materials(this);
 }
 
-static void add_point_light(t_scene_items *this, t_vec3 position, t_vec3 color, char *name)
+static void add_point_light(t_scene_items *this, t_point_light *point_light, char *name)
 {
-//	t_point_light *point_light;
+    t_shape *shape;
+
+    SDL_assert((shape = malloc(sizeof(t_shape))) != NULL);
+    shape->inhereted = point_light;
+    shape->name = ft_strdup(name);
+    shape->shape_type = SHAPE_POINT_LIGHT;
+    double_ll_push_front((void *)&shape, sizeof(t_shape **), &this->point_lights, NULL);
+}
 //
-//	SDL_assert((point_light = malloc(sizeof(t_point_light))) != NULL);
-//	point_light->name = ft_strdup(name);
-//	point_light->position = position;
-//	point_light->color = color;
-//	double_ll_push_front((void *)&point_light, sizeof(t_point_light **), &this->point_lights, NULL);
-}
-
-static void add_shape(t_scene_items *this, t_shape **shape, int shape_type)
-{
-    if(shape_type == SHAPE_POINT_LIGHT)
-        double_ll_push_front((void *)shape, sizeof(t_shape **), &this->point_lights, NULL);
-    else if (shape_type == SHAPE_SPHERE)
-        double_ll_push_front((void *)shape, sizeof(t_shape **), &this->spheres, NULL);
-    else if (shape_type == SHAPE_PLANE)
-        double_ll_push_front((void *)shape, sizeof(t_shape **), &this->planes, NULL);
-}
+//static void add_shape(t_scene_items *this, t_shape **shape, int shape_type)
+//{
+//    if(shape_type == SHAPE_POINT_LIGHT)
+//        double_ll_push_front((void *)shape, sizeof(t_shape **), &this->point_lights, NULL);
+//    else if (shape_type == SHAPE_SPHERE)
+//        double_ll_push_front((void *)shape, sizeof(t_shape **), &this->spheres, NULL);
+//    else if (shape_type == SHAPE_PLANE)
+//        double_ll_push_front((void *)shape, sizeof(t_shape **), &this->planes, NULL);
+//}
 
 static void add_sphere(t_scene_items *this, t_shape_sphere *sphere, char *name)
 {
@@ -271,9 +262,9 @@ static void destroy_shape(t_scene_items *this, char *name)
 
 static void destroy_similar_shapes(struct s_scene_items *this, char *name)
 {
-    private_destroy_shape_by_name(name, &this->planes);
-    private_destroy_shape_by_name(name, &this->spheres);
-    private_destroy_shape_by_name(name, &this->point_lights);
+    while(private_destroy_shape_by_name(name, &this->planes));
+    while(private_destroy_shape_by_name(name, &this->spheres));
+    while(private_destroy_shape_by_name(name, &this->point_lights));
 }
 
 static void private_list_shape_list(t_double_linked_list *shape_list)
@@ -290,9 +281,22 @@ static void private_list_shape_list(t_double_linked_list *shape_list)
     }
 }
 
+static void private_list_materials(t_double_linked_list *material_list)
+{
+    t_named_material *material;
+
+    while(material_list != NULL)
+    {
+        material = *(t_named_material **)(void *)material_list->content;
+        ft_putstr("\t-");
+        ft_putstr(material->name);
+        ft_putchar('\n');
+        material_list = material_list->next;
+    }
+}
+
 static void list(t_scene_items *this)
 {
-	ft_putstr("Shapes: \n");
     ft_putstr("Planes: \n");
     private_list_shape_list(this->planes);
     ft_putstr("Spheres: \n");
@@ -300,7 +304,7 @@ static void list(t_scene_items *this)
     ft_putstr("Point lights: \n");
     private_list_shape_list(this->point_lights);
     ft_putstr("Materials: \n");
-    private_list_shape_list(this->materials);
+    private_list_materials(this->materials);
 
 }
 
@@ -311,8 +315,9 @@ void add_material(struct s_scene_items *this, t_material *material, char *name)
     SDL_assert((named_material = malloc(sizeof(t_named_material))) != NULL);
     named_material->name = ft_strdup(name);
     named_material->material = material;
-    double_ll_push_front((void *)&named_material, sizeof(t_named_material **), &this->point_lights, NULL);
+    double_ll_push_front((void *)&named_material, sizeof(t_named_material **), &this->materials, NULL);
 }
+
 void destroy_material(struct s_scene_items *this, char *name)
 {
     t_double_linked_list *itr;
@@ -364,10 +369,11 @@ t_scene_items *construct_scene_items()
 //    this->add_shape = &add_shape;
     this->add_sphere = &add_sphere;
     this->add_plane = &add_plane;
-    this->destroy_shape = destroy_shape;
+    this->destroy_shape = &destroy_shape;
     this->cache_materials = &cache_materials;
     this->destroy_similar_shapes = &destroy_similar_shapes;
     this->update_cache = &update_cache;
+    this->add_point_light = &add_point_light;
     this->add_material = &add_material;
     this->destroy_material = &destroy_material;
     this->list = &list;
@@ -392,7 +398,6 @@ void destruct_scene_items(struct s_scene_items *this)
 {
 	t_double_linked_list *itr;
 
-	itr = this->planes;
     private_destroy_shape(&this->planes);
     private_destroy_shape(&this->spheres);
     private_destroy_shape(&this->point_lights);

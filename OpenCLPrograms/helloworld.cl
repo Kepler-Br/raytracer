@@ -3,6 +3,13 @@
 
 typedef struct
 {
+    float3 absorb_color;
+    bool is_emissive;
+    float3 emissive_color;
+} t_material;
+
+typedef struct
+{
     float3 origin;
     float3 forward;
     float3 up;
@@ -29,6 +36,7 @@ typedef struct
 {
     float3 position;
     float3 normal;
+    uint material_index;
 } t_plane;
 
 typedef struct
@@ -46,6 +54,12 @@ typedef struct
     float3 normal;
     t_plane shape;
 } t_plane_intersection;
+
+typedef struct
+{
+    float3 position;
+    float3 emission_color;
+} t_point_light;
 
 t_ray make_ray(t_camera *cam, float2 screen_point)
 {
@@ -83,6 +97,7 @@ bool intersect_plane(t_plane plane, t_plane_intersection *intersection)
 
     // First, check if we intersect
     float dot_normal = dot(intersection->ray.direction, plane.normal);
+
 
     if (dot_normal == 0.0f)
     {
@@ -166,10 +181,101 @@ bool intersect_scene_spheres(__global t_sphere *sphere_list, int sphere_count, t
     return (true);
 }
 
-__kernel void main_kernel(__global char *image_array, __global int *random_array,
+bool intersect_scene_planes(__global t_plane *plane_list, int plane_count,
+                            t_plane_intersection *intersection)
+{
+    t_plane_intersection local_intersection;
+    int i;
+
+    intersection->dist = 0;
+    local_intersection = *intersection;
+
+    i = 0;
+    while(i < plane_count)
+    {
+        if(intersect_plane(plane_list[i], &local_intersection) &&
+            local_intersection.dist > intersection->dist)
+            *intersection = local_intersection;
+        i++;
+    }
+    if(intersection->dist == 0)
+        return (false);
+    return (true);
+}
+
+void draw_sphere(t_sphere sphere,
+                 __global t_material *material_list, int material_count,
+                 int x, int y, __global char *image_array, int2 screen_geometry)
+{
+    int material_index = sphere.material_index;
+    float3 color = material_list[material_index].absorb_color;
+    set_pixel(x, y, color, image_array, screen_geometry);
+}
+
+void draw_plane(t_plane plane,
+                __global t_material *material_list, int material_count,
+                int x, int y, __global char *image_array, int2 screen_geometry)
+{
+    int material_index = plane.material_index;
+    float3 color = material_list[material_index].absorb_color;
+    set_pixel(x, y, color, image_array, screen_geometry);
+}
+
+void draw_scene(__global t_sphere *sphere_list, int sphere_count,
+                __global t_plane *plane_list, int plane_count,
+                __global t_point_light *point_light_list, int point_light_count,
+                __global t_material *material_list, int material_count,
+                int x, int y, __global char *image_array, int2 screen_geometry,
+                t_ray ray)
+{
+    t_sphere_intersection sphere_intersection;
+    t_plane_intersection plane_intersection;
+    bool was_sphere_intersected;
+    bool was_plane_intersected;
+
+    sphere_intersection.ray = ray;
+    plane_intersection.ray = ray;
+    was_sphere_intersected = intersect_scene_spheres(sphere_list,
+                                                     sphere_count,
+                                                     &sphere_intersection);
+    was_plane_intersected = intersect_scene_planes(plane_list,
+                                                   plane_count,
+                                                   &plane_intersection);
+    if(was_sphere_intersected && was_plane_intersected)
+    {
+        if(sphere_intersection.dist < plane_intersection.dist)
+            draw_sphere(sphere_intersection.shape, material_list,
+                        material_count, x, y, image_array, screen_geometry);
+        else
+            draw_plane(plane_intersection.shape, material_list,
+                       material_count, x, y, image_array, screen_geometry);
+    }
+    else if(was_sphere_intersected)
+    {
+        draw_sphere(sphere_intersection.shape, material_list,
+                    material_count, x, y, image_array, screen_geometry);
+    }
+    else if (was_plane_intersected)
+    {
+        draw_plane(plane_intersection.shape, material_list,
+                   material_count, x, y, image_array, screen_geometry);
+    }
+    else
+    {
+        set_pixel(x, y, (float3){0.0f, 0.0f, 0.0f},
+                  image_array, screen_geometry);
+    }
+}
+
+__kernel void main_kernel(
+                          __global char *image_array, __global int *random_array,
                           int random_array_size, int2 screen_geometry, int random_number,
-                          int skip_percentage, t_camera cam, __global t_sphere *sphere_list,
-                          int sphere_count, __global t_plane *plane_list, int plane_count)
+                          int skip_percentage, t_camera cam,
+                          __global t_sphere *sphere_list, int sphere_count,
+                          __global t_plane *plane_list, int plane_count,
+                          __global t_point_light *point_light_list, int point_light_count,
+                          __global t_material *material_list, int material_count
+                          )
 {
 
     int image_x = get_global_id(0);
@@ -192,11 +298,22 @@ __kernel void main_kernel(__global char *image_array, __global int *random_array
 //    {
 //        printf("sphere_count %d\n", sphere_count);
 //    }
-    if(intersect_scene_spheres(sphere_list, sphere_count, &intersection))
+    draw_scene(sphere_list, sphere_count,
+               plane_list, plane_count,
+               point_light_list, point_light_count,
+               material_list, material_count,
+               image_x, image_y, image_array, screen_geometry,
+               ray);
+//    if(intersect_scene_spheres(sphere_list, sphere_count, &intersection))
+//    {
+//        int material_index = intersection.shape.material_index;
+//        float3 color = material_list[material_index].absorb_color;
+//        set_pixel(image_x, image_y, color, image_array, screen_geometry);
+//    }
 //    if(intersect_plane(plane_list[0],&intersection))
 //    if(intersection.dist > 0.0f)
-        set_pixel(image_x, image_y, (float3){1.0f, 1.0f, 1.0f}, image_array, screen_geometry);
-    else
-        set_pixel(image_x, image_y, (float3){1.0f, 0.0f, 1.0f}, image_array, screen_geometry);
+
+//    else
+//        set_pixel(image_x, image_y, (float3){0.0f, 0.0f, 0.0f}, image_array, screen_geometry);
 
 }
