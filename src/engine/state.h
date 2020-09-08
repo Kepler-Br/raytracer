@@ -1,7 +1,11 @@
 #ifndef RAYTRACER_STATE_H
 #define RAYTRACER_STATE_H
 
-#include <OpenCL/cl.h>
+#ifdef __APPLE__
+# include <OpenCL/cl.h>
+#elif __linux__
+# include <CL/cl.h>
+#endif
 
 typedef struct	s_state
 {

@@ -1,27 +1,24 @@
 #include "camera.h"
 
-void look_at(struct s_camera *this, t_vec3 origin, t_vec3 target, t_vec3 up)
+void camera_look_at(t_camera *camera, t_vec3 origin, t_vec3 target, t_vec3 up)
 {
     t_vec3 vec;
 
-    this->origin = origin;
+    camera->origin = origin;
     vec = vec3_vec3_sub(&target, &origin);
-    this->forward = vec3_normalize(&vec);
-    vec = vec3_vec3_cross(&this->forward, &up);
-    this->right = vec3_normalize(&vec);
-    this->up = vec3_vec3_cross(&this->right, &this->forward);
+    vec = (t_vec3){{target.x - origin.x, target.y - origin.y, target.z - origin.z}};
+    camera->forward = vec3_normalize(&vec);
+    vec = vec3_vec3_cross(&camera->forward, &up);
+    camera->right = vec3_normalize(&vec);
+    camera->up = vec3_vec3_cross(&camera->right, &camera->forward);
 }
 
-t_camera *construct_camera(float fov, float aspect)
+t_camera *construct_camera(cl_float fov, cl_float aspect)
 {
     t_camera *this;
 
-
     SDL_assert((this = malloc(sizeof(t_camera))) != NULL);
-
     this->height = tanf(fov);
     this->width = this->height * aspect;
-
-    this->look_at = &look_at;
     return (this);
 }

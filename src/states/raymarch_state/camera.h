@@ -12,12 +12,11 @@ typedef struct s_camera
     t_vec3 forward;
     t_vec3 up;
     t_vec3 right;
-    float height;
-    float width;
-
-    void (*look_at)(struct s_camera *this, t_vec3 origin, t_vec3 target, t_vec3 up);
+    cl_float height;
+    cl_float width;
 } t_camera;
 
-t_camera *construct_camera(float fov, float aspect);
+t_camera *construct_camera(cl_float fov, cl_float aspect);
+void camera_look_at(t_camera *camera, t_vec3 origin, t_vec3 target, t_vec3 up);
 
 #endif // CAMERA_H
