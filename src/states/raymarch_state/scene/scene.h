@@ -29,6 +29,7 @@ typedef struct s_scene_items
     void (*destroy_shape)(struct s_scene_items *this, char *name);
     void (*destroy_similar_shapes)(struct s_scene_items *this, char *name);
     void (*update_cache)(struct s_scene_items *this, int shape_type);
+    void (*add_point_light)(struct s_scene_items *this, t_point_light *point_light, char *name);
     void (*add_material)(struct s_scene_items *this, t_material *material, char *name);
     void (*destroy_material)(struct s_scene_items *this, char *name);
 	void (*list)(struct s_scene_items *this);

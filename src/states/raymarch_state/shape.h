@@ -14,7 +14,6 @@ typedef struct s_ray t_ray;
 typedef struct s_material
 {
     t_vec3 absorb_color;
-
     cl_bool is_emissive;
     t_vec3 emissive_color;
 } t_material;
@@ -42,7 +41,7 @@ void destruct_shape(t_shape *this);
 typedef struct s_point_light
 {
     t_vec3 position;
-    t_vec3 color;
+    t_vec3 emission_color;
 } t_point_light;
 
 t_shape *construct_shape_point_light(t_vec3 position, t_vec3 color, char *name);
