@@ -1,5 +1,5 @@
 #include "mainloop.h"
-#include "shape.h"
+#include "../states/raymarch_state/shape.h"
 #include "ray.h"
 
 static void run(t_mainloop *this)

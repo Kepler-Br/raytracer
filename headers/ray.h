@@ -7,7 +7,7 @@
 #define MIN_RAY_DIST 0.0001f
 
 #include "vec3.h"
-#include "shape.h"
+#include "../src/states/raymarch_state/shape.h"
 
 typedef struct s_ray
 {
