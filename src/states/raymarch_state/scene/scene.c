@@ -11,7 +11,7 @@ static void private_cache_spheres(t_scene_items *this)
 
     free(this->cached_spheres);
     this->sphere_cache_size = double_ll_len(this->spheres);
-    SDL_assert((this->cached_spheres = malloc(sizeof(t_shape *) * this->sphere_cache_size)) != NULL);
+    SDL_assert((this->cached_spheres = malloc(sizeof(t_shape_sphere) * this->sphere_cache_size)) != NULL);
     itr = double_ll_back(this->spheres);
     index = 0;
     while(index < this->sphere_cache_size)
@@ -31,7 +31,7 @@ static void private_cache_planes(t_scene_items *this)
 
     free(this->cached_planes);
     this->plane_cache_size = double_ll_len(this->planes);
-    SDL_assert((this->cached_planes = malloc(sizeof(t_shape *) * this->plane_cache_size)) != NULL);
+    SDL_assert((this->cached_planes = malloc(sizeof(t_shape_plane) * this->plane_cache_size)) != NULL);
     itr = double_ll_back(this->planes);
     index = 0;
     while(index < this->plane_cache_size)
@@ -51,7 +51,7 @@ static void private_cache_point_lights(t_scene_items *this)
 
     free(this->cached_point_lights);
     this->point_light_cache_size = double_ll_len(this->point_lights);
-    SDL_assert((this->cached_point_lights = malloc(sizeof(t_shape *) * this->point_light_cache_size)) != NULL);
+    SDL_assert((this->cached_point_lights = malloc(sizeof(t_point_light) * this->point_light_cache_size)) != NULL);
     itr = double_ll_back(this->point_lights);
     index = 0;
     while(index < this->point_light_cache_size)

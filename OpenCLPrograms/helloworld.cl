@@ -145,6 +145,27 @@ bool intersect_sphere(t_sphere sphere, t_sphere_intersection *intersection)
     return (true);
 }
 
+bool intersect_scene_spheres(__global t_sphere *sphere_list, int sphere_count, t_sphere_intersection *intersection)
+{
+    t_sphere_intersection local_intersection;
+    int i;
+
+    intersection->dist = 0;
+    local_intersection = *intersection;
+    i = 0;
+    while(i < sphere_count)
+    {
+        if(intersect_sphere(sphere_list[i], &local_intersection) &&
+            local_intersection.dist > intersection->dist)
+            *intersection = local_intersection;
+
+        i++;
+    }
+    if(intersection->dist == 0)
+        return (false);
+    return (true);
+}
+
 __kernel void main_kernel(__global char *image_array, __global int *random_array,
                           int random_array_size, int2 screen_geometry, int random_number,
                           int skip_percentage, t_camera cam, __global t_sphere *sphere_list,
@@ -153,32 +174,29 @@ __kernel void main_kernel(__global char *image_array, __global int *random_array
 
     int image_x = get_global_id(0);
     int image_y = get_global_id(1);
-    bool should_skip_frame = random_array[((screen_geometry.x * image_y + image_x)*random_number)%random_array_size]%100 < skip_percentage;
-    if(should_skip_frame)
-    {
-        set_pixel(image_x, image_y, (float3){0.0f, 0.0f, 0.0f}, image_array, screen_geometry);
-        return;
-    }
+//    bool should_skip_frame = random_array[((screen_geometry.x * image_y + image_x)*random_number)%random_array_size]%100 < skip_percentage;
+//    if(should_skip_frame)
+//    {
+//        set_pixel(image_x, image_y, (float3){0.0f, 0.0f, 0.0f}, image_array, screen_geometry);
+//        return;
+//    }
     float2 screen_coordinates = (float2){2.0f * image_x / screen_geometry.x - 1.0f,
                                          2.0f * image_y / screen_geometry.y - 1.0f};
     t_ray ray = make_ray(&cam, screen_coordinates);
-    t_plane_intersection intersection;
+//    t_plane_intersection intersection;
+    t_sphere_intersection intersection;
     intersection.ray = ray;
 
-//intersect_sphere(sphere_list[0], &intersection);
-//    if(intersect_sphere(sphere_list[0], &intersection))
-    if(intersect_plane(plane_list[0],&intersection))
+//if(intersect_sphere(sphere_list[0], &intersection))
+//    if(image_x == 1 && image_y == 0)
+//    {
+//        printf("sphere_count %d\n", sphere_count);
+//    }
+    if(intersect_scene_spheres(sphere_list, sphere_count, &intersection))
+//    if(intersect_plane(plane_list[0],&intersection))
 //    if(intersection.dist > 0.0f)
         set_pixel(image_x, image_y, (float3){1.0f, 1.0f, 1.0f}, image_array, screen_geometry);
     else
         set_pixel(image_x, image_y, (float3){1.0f, 0.0f, 1.0f}, image_array, screen_geometry);
-    if(image_x == 1 && image_y == 1)
-    {
-printf("Origin %f %f %f\n", cam.origin.x, cam.origin.y, cam.origin.z);
-printf("Forward %f %f %f\n", cam.forward.x, cam.forward.y, cam.forward.z);
-printf("Right %f %f %f\n", cam.right.x, cam.right.y, cam.right.z);
-printf("Up %f %f %f\n", cam.up.x, cam.up.y, cam.up.z);
-printf("Width height %f %f\n", cam.width, cam.height);
-    }
-//        printf("dist %f\n", intersection.dist);
+
 }

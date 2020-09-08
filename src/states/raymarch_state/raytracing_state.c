@@ -164,6 +164,10 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
     sphere->position = (t_vec3){{0.0f, 0.0f, 0.0f}};
     sphere->radius = 1.0f;
     raytracing_state->scene_items->add_sphere(raytracing_state->scene_items, sphere, "sphere1");
+    sphere = malloc(sizeof(t_shape_sphere));
+    sphere->position = (t_vec3){{0.0f, 3.0f, 0.0f}};
+    sphere->radius = 1.0f;
+    raytracing_state->scene_items->add_sphere(raytracing_state->scene_items, sphere, "sphere2");
     t_shape_plane *plane;
     plane = malloc(sizeof(t_shape_plane));
     plane->normal = (t_vec3){{0.0f, -1.0f, 0.0f}};
