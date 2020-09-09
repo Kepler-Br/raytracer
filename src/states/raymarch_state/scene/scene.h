@@ -10,6 +10,7 @@ typedef struct s_scene_items
     t_shape_sphere *cached_spheres;
     t_point_light *cached_point_lights;
     t_material *cached_materials;
+    t_opencl_shape *cached_shapes;
 
     t_double_linked_list *planes;
     t_double_linked_list *spheres;
@@ -19,6 +20,7 @@ typedef struct s_scene_items
     cl_int plane_cache_size;
     cl_int sphere_cache_size;
     cl_int point_light_cache_size;
+    cl_int shape_cache_size;
     cl_int material_cache_size;
 
     void (*cache)(struct s_scene_items *this, int shape_type);

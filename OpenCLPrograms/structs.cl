@@ -3,6 +3,16 @@
 
 #define MAX_RAY_DIST 1000000.0f
 #define MIN_RAY_DIST 0.00001f
+#define SHAPE_PLANE 0
+#define SHAPE_SPHERE 1
+#define SHAPE_POINT_LIGHT 2
+#define SHAPE_NONE 2
+
+typedef struct
+{
+    int type;
+    int index;
+} t_shape;
 
 typedef struct
 {
@@ -44,24 +54,17 @@ typedef struct
 
 typedef struct
 {
-    t_ray ray;
-    float dist;
-    float3 normal;
-    t_sphere shape;
-} t_sphere_intersection;
-
-typedef struct
-{
-    t_ray ray;
-    float dist;
-    float3 normal;
-    t_plane shape;
-} t_plane_intersection;
-
-typedef struct
-{
     float3 position;
     float3 emission_color;
 } t_point_light;
+
+typedef struct
+{
+    t_ray ray;
+    float dist;
+    float3 normal;
+    __global void *shape;
+    int shape_type;
+} t_intersection;
 
 #endif
