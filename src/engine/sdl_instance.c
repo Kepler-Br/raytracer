@@ -44,5 +44,5 @@ void destruct_sdl_instance(t_sdl_instance *sdl_instance)
 {
 	SDL_DestroyRenderer(sdl_instance->renderer);
 	SDL_DestroyWindow(sdl_instance->window);
-//	SDL_Quit();
+	SDL_Quit();
 }

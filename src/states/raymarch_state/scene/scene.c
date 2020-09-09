@@ -93,9 +93,42 @@ static void cache(t_scene_items *this, int shape_type)
         private_cache_point_lights(this);
 }
 
-void cache_materials(struct s_scene_items *this)
+static void cache_materials(t_scene_items *this)
 {
     private_cache_materials(this);
+}
+
+static void private_cache_shapes(t_scene_items *this)
+{
+    cl_int index;
+    cl_int total_index;
+    t_opencl_shape ocl_shape;
+
+    this->shape_cache_size = 0;
+    this->shape_cache_size += this->plane_cache_size;
+    this->shape_cache_size += this->sphere_cache_size;
+
+    free(this->cached_shapes);
+    SDL_assert((this->cached_shapes = malloc(sizeof(t_opencl_shape)*this->shape_cache_size)) != NULL);
+    index = 0;
+    total_index = 0;
+    while(index < this->sphere_cache_size)
+    {
+        ocl_shape.shape_type = SHAPE_SPHERE;
+        ocl_shape.shape_index = index;
+        this->cached_shapes[total_index] = ocl_shape;
+        index++;
+        total_index++;
+    }
+    index = 0;
+    while(index < this->plane_cache_size)
+    {
+        ocl_shape.shape_type = SHAPE_PLANE;
+        ocl_shape.shape_index = index;
+        this->cached_shapes[total_index] = ocl_shape;
+        index++;
+        total_index++;
+    }
 }
 
 static void cache_full(t_scene_items *this)
@@ -103,6 +136,7 @@ static void cache_full(t_scene_items *this)
     private_cache_point_lights(this);
     private_cache_spheres(this);
     private_cache_planes(this);
+    private_cache_shapes(this);
     private_cache_materials(this);
 }
 
@@ -353,6 +387,7 @@ t_scene_items *construct_scene_items()
     this->cached_planes = NULL;
 	this->cached_point_lights = NULL;
 	this->cached_spheres = NULL;
+    this->cached_shapes = NULL;
 
     this->planes = NULL;
     this->spheres = NULL;

@@ -34,6 +34,8 @@ static void			pre_render(struct s_state *this)
     ocl_set_kernel_arg(state->main_kernel, 12, sizeof(cl_int), (void *)&state->scene_items->point_light_cache_size);
     ocl_set_kernel_arg(state->main_kernel, 13, sizeof(cl_mem), (void *)&state->mem_material_list);
     ocl_set_kernel_arg(state->main_kernel, 14, sizeof(cl_int), (void *)&state->scene_items->material_cache_size);
+    ocl_set_kernel_arg(state->main_kernel, 15, sizeof(cl_mem), (void *)&state->mem_shape_list);
+    ocl_set_kernel_arg(state->main_kernel, 16, sizeof(cl_int), (void *)&state->scene_items->shape_cache_size);
 }
 
 static void			render(struct s_state *this)
@@ -219,6 +221,8 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
     ocl_enqueue_write_buffer(raytracing_state->commands, raytracing_state->mem_point_light_list, (size_t)raytracing_state->scene_items->point_light_cache_size*sizeof(t_point_light), raytracing_state->scene_items->cached_point_lights);
     raytracing_state->mem_material_list = ocl_create_buffer(raytracing_state->context, CL_MEM_READ_ONLY, (size_t)raytracing_state->scene_items->material_cache_size*sizeof(t_material), NULL);
     ocl_enqueue_write_buffer(raytracing_state->commands, raytracing_state->mem_material_list, (size_t)raytracing_state->scene_items->material_cache_size*sizeof(t_material), raytracing_state->scene_items->cached_materials);
+    raytracing_state->mem_shape_list = ocl_create_buffer(raytracing_state->context, CL_MEM_READ_ONLY, (size_t)raytracing_state->scene_items->shape_cache_size*sizeof(t_opencl_shape), NULL);
+    ocl_enqueue_write_buffer(raytracing_state->commands, raytracing_state->mem_shape_list, (size_t)raytracing_state->scene_items->shape_cache_size*sizeof(t_opencl_shape), raytracing_state->scene_items->cached_shapes);
 
     state->pre_render = &pre_render;
 	state->render = &render;

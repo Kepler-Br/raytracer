@@ -27,6 +27,12 @@ typedef struct s_named_material
 t_named_material *construct_named_material(char *name, t_material input_material);
 void destruct_named_material(t_named_material *material);
 
+typedef struct  s_opencl_shape
+{
+    cl_int shape_type;
+    cl_int shape_index;
+}               t_opencl_shape;
+
 typedef struct s_shape
 {
     void *inhereted;
