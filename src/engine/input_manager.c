@@ -5,8 +5,9 @@ void update(struct s_input_manager *this)
     SDL_Event event;
     t_ivec2 mouse_move;
 
-    SDL_GetMouseState(&mouse_move.x, &mouse_move.y);
-    this->mouse_delta = ivec2_ivec2_sub(&mouse_move, &this->current_mouse);
+//    SDL_GetMouseState(&mouse_move.x, &mouse_move.y);
+//    SDL_GetGlobalMouseState(&mouse_move.x, &mouse_move.y);
+//    this->mouse_delta = ivec2_ivec2_sub(&mouse_move, &this->current_mouse);
     this->current_mouse = mouse_move;
     while(SDL_PollEvent(&event))
     {
@@ -35,6 +36,11 @@ void update(struct s_input_manager *this)
             map_item.key = (void *)&key;
             this->map->emplace(this->map, map_item);
         }
+        if(event.type == SDL_MOUSEMOTION)
+		{
+			this->mouse_delta.x = event.motion.xrel;
+			this->mouse_delta.y = event.motion.yrel;
+		}
     }
 }
 

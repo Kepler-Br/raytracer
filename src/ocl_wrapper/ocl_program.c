@@ -1,5 +1,6 @@
 #include "ocl_wrapper.h"
 #include "tools.h"
+#include "libft.h"
 #include <stdio.h>
 
 static void build_program(cl_program program, cl_device_id device, char *program_path)
@@ -11,16 +12,19 @@ static void build_program(cl_program program, cl_device_id device, char *program
 	err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
 	if(err != CL_SUCCESS)
 	{
-		printf("Failed to build program(Error code: %d): %s\n", err, program_path);
+		ft_putstr("Failed to build program: ");
+		ft_putendl(ocl_error_to_string(err));
+		ft_putendl(program_path);
 		clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, NULL, NULL, &info_size);
 		if(info_size != 0)
 		{
 			buf = malloc(sizeof(char)*info_size);
 			clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, info_size,buf,NULL);
-			printf("%s\n", buf);
+			ft_putendl(buf);
+			free(buf);
 		}
 		else
-			printf("No logs provided.\n");
+			ft_putendl("No logs provided.");
 		exit(1);
 	}
 }
@@ -34,13 +38,16 @@ cl_program			ocl_load_and_build_program(cl_context context, cl_device_id device,
 	program_text = read_file(program_path);
 	if(program_text == NULL)
 	{
-		printf("Cannot open program file: %s", program_path);
+		ft_putstr("Cannot open program file: ");
+		ft_putendl(program_path);
 		exit(0);
 	}
 	program = clCreateProgramWithSource(context, 1, (const char **)&program_text, NULL, &err);
 	if(err != CL_SUCCESS)
 	{
-		printf("Create program from source(Error code: %d): %s", err, program_path);
+		ft_putstr("Create program from source: ");
+		ft_putendl(ocl_error_to_string(err));
+		ft_putendl(program_path);
 		exit(0);
 	}
 	build_program(program, device, program_path);
@@ -55,7 +62,8 @@ void				ocl_set_kernel_arg(cl_kernel kernel, cl_uint index, const size_t arg_siz
 	err = clSetKernelArg(kernel, index, arg_size, data);
 	if(err != CL_SUCCESS)
 	{
-		printf("Cannot set kernel argument. Error code: %d", err);
+		ft_putstr("Cannot set kernel argument: ");
+		ft_putendl(ocl_error_to_string(err));
 		exit(0);
 	}
 }

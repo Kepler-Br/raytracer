@@ -17,7 +17,7 @@ static void			pre_render(struct s_state *this)
 //	sphere->radius = 1.0f;
 //	sphere->position = (t_vec3){{1.0f, 1.0f, 1.0f}};
 //	sphere->material_index = 1;
-//    ocl_enqueue_write_buffer(state->commands, state->mem_sphere_list, sizeof(t_shape_sphere), (void*)sphere);
+    ocl_enqueue_write_buffer(state->commands, state->mem_sphere_list, sizeof(t_shape_sphere)*state->scene_items->sphere_cache_size, (void*)state->scene_items->cached_spheres);
 //	ocl_enqueue_write_buffer(state->commands, state->mem_image, state->framebuffer->pixel_count*state->framebuffer->color_count, state->framebuffer->pixels);
     ocl_set_kernel_arg(state->main_kernel, 0, sizeof(cl_mem), (void *)&state->mem_image);
     ocl_set_kernel_arg(state->main_kernel, 1, sizeof(cl_mem), (void *)&state->mem_random_lookup);
@@ -36,6 +36,7 @@ static void			pre_render(struct s_state *this)
     ocl_set_kernel_arg(state->main_kernel, 14, sizeof(cl_int), (void *)&state->scene_items->material_cache_size);
     ocl_set_kernel_arg(state->main_kernel, 15, sizeof(cl_mem), (void *)&state->mem_shape_list);
     ocl_set_kernel_arg(state->main_kernel, 16, sizeof(cl_int), (void *)&state->scene_items->shape_cache_size);
+
 }
 
 static void			render(struct s_state *this)
@@ -62,9 +63,13 @@ static void			update(struct s_state *this, float deltatime)
 	t_raytracing_state *state;
 
 	state = (t_raytracing_state *)this->instance_struct;
-    camera_look_at(state->camera, (t_vec3) {{5.0f, 5.0f, 5.0f}},
-                   (t_vec3) {{0.0f, 0.0f, 0.0f}},
-                   (t_vec3) {{0.0f, -1.0f, 0.0f}});
+	state->camera_look_angle.y += (float)state->input_manager->mouse_delta.x/10*deltatime;
+	state->camera_look_angle.x += (float)state->input_manager->mouse_delta.y/10*deltatime;
+//    camera_look_at(state->camera, (t_vec3) {{5.0f, 5.0f, 5.0f}},
+//                   (t_vec3) {{0.0f, 0.0f, 0.0f}},
+//                   (t_vec3) {{0.0f, -1.0f, 0.0f}});
+
+
 }
 
 static void			late_update(struct s_state *this)
@@ -72,6 +77,8 @@ static void			late_update(struct s_state *this)
 	t_raytracing_state *state;
 
 	state = (t_raytracing_state *)this->instance_struct;
+
+
 }
 
 static void			fixed_update(struct s_state *this, float deltatime)
@@ -79,6 +86,16 @@ static void			fixed_update(struct s_state *this, float deltatime)
 	t_raytracing_state *state;
 
 	state = (t_raytracing_state *)this->instance_struct;
+
+
+//	((t_shape_sphere *)((t_shape *)state->scene_items->spheres->content)->inhereted)->position.x += sin(state->mainloop->time_since_start)*100;
+	state->scene_items->cached_spheres[0].position.x += sinf(state->mainloop->time_since_start)*deltatime;
+	state->scene_items->cached_spheres[0].position.y += cosf(state->mainloop->time_since_start)*deltatime;
+	t_vec3 position = (t_vec3){{5.0f + cosf(state->camera_look_angle.x) * sinf(state->camera_look_angle.y)*5.0f,
+								5.0f + sinf(state->camera_look_angle.x) * sinf(state->camera_look_angle.y)*5.0f,
+								5.0f + cosf(state->camera_look_angle.y)*5.0f}};
+	camera_look_at(state->camera, (t_vec3) {{5.0f, 5.0f, 5.0f}},
+				   position, (t_vec3) {{0.0f, -1.0f, 0.0f}});
 }
 
 static void 			input(struct s_state *this)
@@ -125,11 +142,11 @@ static void			destructor(struct s_state *this)
 
 t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_instance *sdl_instance, t_mainloop *mainloop)
 {
+	SDL_SetRelativeMouseMode(SDL_TRUE);
 	t_state				*state;
 	t_raytracing_state	*raytracing_state;
 
 	size_t index;
-
 
 	SDL_assert((state = malloc(sizeof(t_state))) != NULL);
 	SDL_assert((raytracing_state = malloc(sizeof(t_raytracing_state))) != NULL);
@@ -140,6 +157,7 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 	raytracing_state->input_manager = input_manager;
 	raytracing_state->mainloop = mainloop;
 
+	raytracing_state->camera_look_angle = (t_vec2){{0.0f, 0.0f}};
     SDL_assert((raytracing_state->global_work_size = malloc(sizeof(size_t)*2)) != NULL);
     SDL_assert((raytracing_state->local_work_size = malloc(sizeof(size_t)*2)) != NULL);
     raytracing_state->camera = construct_camera(M_PI_4,
@@ -149,8 +167,8 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
                    (t_vec3) {{0.0f, -1.0f, 0.0f}});
     raytracing_state->global_work_size[0] = raytracing_state->framebuffer->resolution.x;
     raytracing_state->global_work_size[1] = raytracing_state->framebuffer->resolution.y;
-    raytracing_state->local_work_size[0] = 16;
-    raytracing_state->local_work_size[1] = 16;
+    raytracing_state->local_work_size[0] = 10;
+    raytracing_state->local_work_size[1] = 10;
     size_t lookup_random_size = raytracing_state->framebuffer->resolution.x * raytracing_state->framebuffer->resolution.y;
 	raytracing_state->random_lookup_size = lookup_random_size;
 	SDL_assert((raytracing_state->random_lookup = malloc(sizeof(cl_int) * lookup_random_size)) != NULL);
@@ -161,37 +179,75 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 		index++;
 	}
 	raytracing_state->skip_percentage = 0;
-
-
     raytracing_state->scene_items = construct_scene_items();
-    t_shape_sphere *sphere;
-    sphere = malloc(sizeof(t_shape_sphere));
-    sphere->material_index = 0;
-    sphere->position = (t_vec3){{0.0f, 0.0f, 0.0f}};
-    sphere->radius = 1.0f;
-    raytracing_state->scene_items->add_sphere(raytracing_state->scene_items, sphere, "sphere1");
-    sphere = malloc(sizeof(t_shape_sphere));
-    sphere->position = (t_vec3){{0.0f, 3.0f, 0.0f}};
-    sphere->radius = 1.0f;
-    sphere->material_index = 1;
-    raytracing_state->scene_items->add_sphere(raytracing_state->scene_items, sphere, "sphere2");
-    t_shape_plane *plane;
-    plane = malloc(sizeof(t_shape_plane));
-    plane->normal = (t_vec3){{0.0f, -1.0f, 0.0f}};
-    plane->position = (t_vec3){{0.0f, 0.0f, 0.0f}};
-    plane->material_index = 1;
-    raytracing_state->scene_items->add_plane(raytracing_state->scene_items, plane, "plane1");
+
+
     t_material *material;
     material = malloc(sizeof(t_material));
-    material->absorb_color = (t_vec3){{0.0f, 1.0f, 0.0f}};
+    material->absorb_color = (t_vec3){{1.0f, 0.0f, 1.0f}};
     material->emissive_color = (t_vec3){{0.0f, 0.0f, 0.0f}};
     material->is_emissive = CL_FALSE;
-    raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "purple_material");
-    material = malloc(sizeof(t_material));
-    material->absorb_color = (t_vec3){{1.0f, 0.0f, 0.0f}};
-    material->emissive_color = (t_vec3){{0.0f, 0.0f, 0.0f}};
-    material->is_emissive = CL_FALSE;
-    raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "red_material");
+    raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "purple");
+	material = malloc(sizeof(t_material));
+	material->absorb_color = (t_vec3){{1.0f, 0.0f, 0.0f}};
+	material->emissive_color = (t_vec3){{0.0f, 0.0f, 0.0f}};
+	material->is_emissive = CL_FALSE;
+	raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "red");
+	material = malloc(sizeof(t_material));
+	material->absorb_color = (t_vec3){{0.0f, 1.0f, 0.0f}};
+	material->emissive_color = (t_vec3){{0.0f, 0.0f, 0.0f}};
+	material->is_emissive = CL_FALSE;
+	raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "green");
+	material = malloc(sizeof(t_material));
+	material->absorb_color = (t_vec3){{0.0f, 0.0f, 1.0f}};
+	material->emissive_color = (t_vec3){{0.0f, 0.0f, 0.0f}};
+	material->is_emissive = CL_FALSE;
+	raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "blue");
+	material = malloc(sizeof(t_material));
+	material->absorb_color = (t_vec3){{1.0f, 1.0f, 0.0f}};
+	material->emissive_color = (t_vec3){{0.0f, 0.0f, 0.0f}};
+	material->is_emissive = CL_FALSE;
+	raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "yellow");
+	material = malloc(sizeof(t_material));
+	material->absorb_color = (t_vec3){{0.8f, 0.529f, 0.019f}};
+	material->emissive_color = (t_vec3){{0.0f, 0.0f, 0.0f}};
+	material->is_emissive = CL_FALSE;
+	raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "brown");
+
+
+	t_shape_sphere *sphere;
+	t_shape_plane *plane;
+
+	sphere = malloc(sizeof(t_shape_sphere));
+	sphere->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "red");
+	sphere->position = (t_vec3){{0.0f, 4.0f, 0.0f}};
+	sphere->radius = 1.0f;
+	raytracing_state->scene_items->add_sphere(raytracing_state->scene_items, sphere, "sphere1");
+	sphere = malloc(sizeof(t_shape_sphere));
+	sphere->position = (t_vec3){{0.0f, 3.0f, 0.0f}};
+	sphere->radius = 1.0f;
+	sphere->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "green");
+	raytracing_state->scene_items->add_sphere(raytracing_state->scene_items, sphere, "sphere2");
+
+
+	plane = malloc(sizeof(t_shape_plane));
+	plane->normal = (t_vec3){{0.0f, -1.0f, 0.0f}};
+	plane->position = (t_vec3){{0.0f, 0.0f, 0.0f}};
+	plane->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "blue");
+	raytracing_state->scene_items->add_plane(raytracing_state->scene_items, plane, "plane1");
+	plane = malloc(sizeof(t_shape_plane));
+	plane->normal = (t_vec3){{0.0f, 1.0f, 0.0f}};
+	plane->position = (t_vec3){{0.0f, 10.0f, 0.0f}};
+	plane->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "yellow");
+	raytracing_state->scene_items->add_plane(raytracing_state->scene_items, plane, "plane2");
+//	plane = malloc(sizeof(t_shape_plane));
+//	plane->normal = (t_vec3){{0.0f, 0.0f, 1.0f}};
+//	plane->position = (t_vec3){{0.0f, 0.0f, 10.0f}};
+//	plane->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "brown");
+//	raytracing_state->scene_items->add_plane(raytracing_state->scene_items, plane, "plane3");
+
+
+
     t_point_light *point_light;
     point_light = malloc(sizeof(t_point_light));
     point_light->emission_color = (t_vec3){{1.0f, 1.0f, 1.0f}};

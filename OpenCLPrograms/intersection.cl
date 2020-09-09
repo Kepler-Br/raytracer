@@ -3,12 +3,10 @@
 
 #include "structs.cl"
 
-//bool intersect_plane(t_plane plane, t_plane_intersection *intersection);
-//bool intersect_sphere(t_sphere sphere, t_sphere_intersection *intersection);
-//bool intersect_scene_spheres(__global t_sphere *sphere_list, int sphere_count,
-//                             t_sphere_intersection *intersection);
-//bool intersect_scene_planes(__global t_plane *plane_list, int plane_count,
-//                            t_plane_intersection *intersection);
+bool intersect_plane(__global t_plane *plane, t_intersection *intersection);
+bool intersect_sphere(__global t_sphere *sphere, t_intersection *intersection);
+bool intersect(t_scene *scene, t_intersection *intersection);
+bool is_point_visible(t_scene *scene, float3 start, float3 end, float *dist);
 
 
 bool intersect_plane(__global t_plane *plane, t_intersection *intersection)
@@ -71,7 +69,6 @@ bool intersect_sphere(__global t_sphere *sphere, t_intersection *intersection)
             return (false);
         }
     }
-
     intersection->dist = t0;
     intersection->normal = local_ray.direction * t0;
     intersection->normal = local_ray.origin + intersection->normal;
@@ -82,35 +79,30 @@ bool intersect_sphere(__global t_sphere *sphere, t_intersection *intersection)
     return (true);
 }
 
-bool intersect(__global t_sphere *sphere_list, int sphere_count,
-                __global t_plane *plane_list, int plane_count,
-                __global t_shape *shape_list, int shape_count,
-                t_intersection *intersection)
+bool is_point_visible(t_scene *scene, float3 start, float3 end, float *dist)
+{
+    return (true);
+}
+
+bool intersect(t_scene *scene, t_intersection *intersection)
 {
     t_intersection local_intersection;
-    local_intersection.dist = 0.0f;
-    intersection->dist = 0.0f;
-    intersection->shape = NULL;
     int index;
     t_shape shape;
 
+    local_intersection.dist = 0.0f;
+    intersection->dist = 0.0f;
     local_intersection.ray = intersection->ray;
-    shape = shape_list[0];
-    if(shape.type == SHAPE_PLANE)
-        intersect_plane(&plane_list[shape.index], intersection);
-    else
-        if (shape.type == SHAPE_SPHERE)
-        intersect_sphere(&sphere_list[shape.index], intersection);
-    index = 1;
-    while(index < shape_count)
+    intersection->shape_type = SHAPE_NONE;
+    index = 0;
+    while(index < scene->shape_count)
     {
-        shape = shape_list[index];
-        local_intersection.dist = 0.0f;
+        shape = scene->shape_list[index];
         if(shape.type == SHAPE_PLANE)
-            intersect_plane(&plane_list[shape.index], &local_intersection);
+            intersect_plane(&scene->plane_list[shape.index], &local_intersection);
         else if (shape.type == SHAPE_SPHERE)
-            intersect_sphere(&sphere_list[shape.index], &local_intersection);
-        if(intersection->dist > local_intersection.dist)
+            intersect_sphere(&scene->sphere_list[shape.index], &local_intersection);
+        if(intersection->dist > local_intersection.dist || (intersection->shape_type == SHAPE_NONE && local_intersection.shape_type != SHAPE_NONE))
             *intersection = local_intersection;
         index++;
     }

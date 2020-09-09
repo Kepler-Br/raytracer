@@ -219,11 +219,13 @@ static void private_update_cache_spheres(t_scene_items *this)
         return;
     }
     index = 0;
+	itr = this->spheres;
     while(index < cache_len)
     {
-        sphere = (*(t_shape **)itr->content)->inhereted;
+        sphere = (t_shape_sphere *)(*(t_shape **)itr->content)->inhereted;
         this->cached_spheres[index] = *sphere;
         index++;
+        itr = itr->next;
     }
 }
 
@@ -352,6 +354,25 @@ void add_material(struct s_scene_items *this, t_material *material, char *name)
     double_ll_push_front((void *)&named_material, sizeof(t_named_material **), &this->materials, NULL);
 }
 
+cl_uint material_index_from_name(struct s_scene_items *this, char *name)
+{
+	t_double_linked_list *itr;
+	cl_uint index;
+	t_named_material *named_material;
+
+	itr = this->materials;
+	index = 0;
+	while(itr != NULL)
+	{
+		named_material = *(t_named_material **)itr->content;
+		if(ft_strequ(name, named_material->name))
+			return (index);
+		index++;
+		itr = itr->next;
+	}
+	return (0);
+}
+
 void destroy_material(struct s_scene_items *this, char *name)
 {
     t_double_linked_list *itr;
@@ -410,6 +431,7 @@ t_scene_items *construct_scene_items()
     this->update_cache = &update_cache;
     this->add_point_light = &add_point_light;
     this->add_material = &add_material;
+    this->material_index_from_name = &material_index_from_name;
     this->destroy_material = &destroy_material;
     this->list = &list;
 	return (this);
