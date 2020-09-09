@@ -193,7 +193,7 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
     t_point_light *point_light;
     point_light = malloc(sizeof(t_point_light));
     point_light->emission_color = (t_vec3){{1.0f, 1.0f, 1.0f}};
-    point_light->position = (t_vec3){{0.0f, 5.0f, 0.0f}};
+    point_light->position = (t_vec3){{5.0f, 5.0f, 5.0f}};
     raytracing_state->scene_items->add_point_light(raytracing_state->scene_items, point_light, "main_point_light");
     raytracing_state->scene_items->list(raytracing_state->scene_items);
     raytracing_state->scene_items->cache_full(raytracing_state->scene_items);
@@ -202,7 +202,7 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 	ocl_print_device_info_full(raytracing_state->device_id);
 	raytracing_state->context = ocl_create_context(raytracing_state->device_id);
 	raytracing_state->commands = ocl_create_command_queue(raytracing_state->context, raytracing_state->device_id);
-	raytracing_state->program = ocl_load_and_build_program(raytracing_state->context, raytracing_state->device_id, "./OpenCLPrograms/helloworld.cl");
+	raytracing_state->program = ocl_load_and_build_program(raytracing_state->context, raytracing_state->device_id, "./OpenCLPrograms/main.cl");
 	raytracing_state->main_kernel = ocl_get_kernel(raytracing_state->program, "main_kernel");
 
 
