@@ -7,7 +7,13 @@ bool intersect_plane(__global t_plane *plane, t_intersection *intersection);
 bool intersect_sphere(__global t_sphere *sphere, t_intersection *intersection);
 bool intersect(t_scene *scene, t_intersection *intersection);
 bool is_point_visible(t_scene *scene, float3 start, float3 end, float *dist);
+float3 get_intersection_position(t_intersection *intersection);
 
+
+float3 get_intersection_position(t_intersection *intersection)
+{
+    return (intersection->dist * intersection->ray.direction + intersection->ray.origin);
+}
 
 bool intersect_plane(__global t_plane *plane, t_intersection *intersection)
 {
@@ -81,7 +87,26 @@ bool intersect_sphere(__global t_sphere *sphere, t_intersection *intersection)
 
 bool is_point_visible(t_scene *scene, float3 start, float3 end, float *dist)
 {
-    return (true);
+    t_ray ray;
+    t_intersection intersection;
+    float dist_towards_point;
+
+    ray.origin = end;
+    ray.direction = normalize(start - end);
+    ray.max_dist = 100.0f;
+	intersection.ray = ray;
+	dist_towards_point = length(end - start);
+
+	if(intersect(scene, &intersection))
+	{
+		if(intersection.dist + 0.0005f >= dist_towards_point)
+		{
+			*dist = dist_towards_point;
+			return (true);
+		}
+		return (false);
+	}
+    return (false);
 }
 
 bool intersect(t_scene *scene, t_intersection *intersection)

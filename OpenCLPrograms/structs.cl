@@ -40,6 +40,15 @@ typedef struct
 
 typedef struct
 {
+    t_ray ray;
+    float dist;
+    float3 normal;
+    __global void *shape;
+    int shape_type;
+} t_intersection;
+
+typedef struct
+{
     float3 position;
     float radius;
     uint material_index;
@@ -57,16 +66,6 @@ typedef struct
     float3 position;
     float3 emission_color;
 } t_point_light;
-
-typedef struct
-{
-    t_ray ray;
-    float dist;
-    float3 normal;
-    __global void *shape;
-    int shape_type;
-} t_intersection;
-
 
 typedef struct
 {
