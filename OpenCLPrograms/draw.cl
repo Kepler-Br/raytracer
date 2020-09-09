@@ -36,15 +36,16 @@ void draw_plane(t_plane plane, t_scene *scene, t_screen *screen)
     set_pixel(screen, color);
 }
 
-
 void draw_scene(t_scene *scene, t_screen *screen, t_ray ray)
 {
     t_intersection intersection;
     __global t_sphere *sphere;
     __global t_plane *plane;
     __global t_material *material;
+    __global t_point_light *point_light;
     int material_index;
 
+    point_light = &scene->point_light_list[0];
     intersection.ray = ray;
     if(intersect(scene, &intersection))
     {
@@ -60,7 +61,20 @@ void draw_scene(t_scene *scene, t_screen *screen, t_ray ray)
             material_index = sphere->material_index;
             material = &scene->material_list[material_index];
         }
-        set_pixel(screen, material->absorb_color);
+        float dist;
+        float3 intersection_position = get_intersection_position(&intersection);
+        // if(is_point_visible(scene, point_light->position, intersection.ray.origin, &dist))
+        if(is_point_visible(scene, intersection_position, point_light->position, &dist))
+        {
+
+            float dott = dot(intersection.normal, normalize(point_light->position - intersection_position));
+            float3 result_color = (float3){point_light->emission_color.x * dott * 1.0f/dist - material->absorb_color.x,
+                                            point_light->emission_color.y * dott * 1.0f/dist - material->absorb_color.y,
+                                            point_light->emission_color.z * dott * 1.0f/dist - material->absorb_color.z};
+            set_pixel(screen, result_color);
+        }
+        else
+            set_pixel(screen, (float3){0.0f, 0.0f, 0.0f});
     }
     else
         set_pixel(screen, (float3){0.0f, 0.0f, 0.0f});
