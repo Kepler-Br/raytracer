@@ -3,10 +3,10 @@
 
 #define MAX_RAY_DIST 1000000.0f
 #define MIN_RAY_DIST 0.00001f
-#define SHAPE_PLANE 0
-#define SHAPE_SPHERE 1
-#define SHAPE_POINT_LIGHT 2
-#define SHAPE_NONE 2
+#define SHAPE_NONE 0
+#define SHAPE_PLANE 1
+#define SHAPE_SPHERE 2
+#define SHAPE_POINT_LIGHT 3
 
 typedef struct
 {
@@ -66,5 +66,28 @@ typedef struct
     __global void *shape;
     int shape_type;
 } t_intersection;
+
+
+typedef struct
+{
+    __global t_sphere *sphere_list;
+    int sphere_count;
+    __global t_plane *plane_list;
+    int plane_count;
+    __global t_point_light *point_light_list;
+    int point_light_count;
+    __global t_shape *shape_list;
+    int shape_count;
+    __global t_material *material_list;
+    int material_count;
+} t_scene;
+
+typedef struct
+{
+    int current_x;
+    int current_y;
+    int2 geometry;
+    __global char *image_array;
+} t_screen;
 
 #endif

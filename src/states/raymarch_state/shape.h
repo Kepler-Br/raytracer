@@ -3,10 +3,10 @@
 
 #include "vec3.h"
 
-#define SHAPE_PLANE 0
-#define SHAPE_SPHERE 1
-#define SHAPE_POINT_LIGHT 2
-#define SHAPE_OTHER 3
+#define SHAPE_NONE 0
+#define SHAPE_PLANE 1
+#define SHAPE_SPHERE 2
+#define SHAPE_POINT_LIGHT 3
 
 typedef struct s_intersection t_intersection;
 typedef struct s_ray t_ray;

@@ -61,17 +61,41 @@ void				ocl_print_all_information()
 	}
 }
 
+static void 		private_ocl_print_work_dimention_groups(cl_device_id device)
+{
+	size_t *work_groups;
+	cl_uint dimensions;
+	size_t index;
+
+	clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS, sizeof(cl_uint), &dimensions, NULL);
+	work_groups = malloc(sizeof(size_t)*dimensions);
+	clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_ITEM_SIZES, sizeof(size_t)*dimensions, work_groups, NULL);
+	index = 0;
+	printf("Maximum work item sizes: [ ");
+	while(index < dimensions)
+	{
+		printf("%lu ", work_groups[index]);
+		index++;
+	}
+	printf("]\n");
+}
+
 void				ocl_print_device_info_full(cl_device_id device)
 {
+	size_t num;
 	cl_uint num2;
 	cl_ulong num3;
+
 
 	print_device_info_string(device, CL_DEVICE_NAME, "Device name");
 	clGetDeviceInfo(device, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(cl_uint), &num2, NULL);
 	printf("Max compute units: %u\n", num2);
 	clGetDeviceInfo(device, CL_DEVICE_MAX_CLOCK_FREQUENCY, sizeof(cl_uint), &num2, NULL);
 	printf("Max clock frequency: %u MHz(%u.%u GHz)\n", num2, num2/1000, num2%1000);
+	clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &num, NULL);
+	printf("Max work group size: %lu\n", num);
 	clGetDeviceInfo(device, CL_DEVICE_TYPE, sizeof(cl_ulong), &num3, NULL);
+	private_ocl_print_work_dimention_groups(device);
 	printf("Device type: ");
 	if(num3 == CL_DEVICE_TYPE_CPU)
 		printf("CPU");

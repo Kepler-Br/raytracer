@@ -20,6 +20,7 @@ static void init(t_sdl_instance *this, const char * const title)
         SDL_LogError(SDL_LOG_CATEGORY_ASSERT, "%s: %s", "Cannot create SDL2 renderer", SDL_GetError());
         exit(0);
     }
+
 }
 
 static void present(t_sdl_instance *this)

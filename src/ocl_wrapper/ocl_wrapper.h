@@ -39,6 +39,7 @@ void				ocl_enqueue_read_buffer(cl_command_queue command_queue, cl_mem buffer, s
 void 				ocl_enqueue_nd_range_kernel(cl_command_queue command_queue, cl_kernel kernel, cl_uint work_dim, const size_t *global_work_size, const size_t *local_work_size);
 void				ocl_finish(cl_command_queue command_queue);
 
+char				*ocl_error_to_string(int error_code);
 
 
 #endif //RAYTRACER_OCL_WRAPPER_H
