@@ -39,6 +39,7 @@ typedef struct	s_raytracing_state
     cl_mem mem_shape_list;
 
     t_vec2 camera_look_angle;
+    t_vec3 camera_position;
 }				t_raytracing_state;
 
 t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_instance *sdl_instance, t_mainloop *mainloop);
