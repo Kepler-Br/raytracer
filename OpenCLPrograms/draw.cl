@@ -25,14 +25,14 @@ void set_pixel(t_screen *screen, float3 color)
 void draw_sphere(t_sphere sphere, t_scene *scene, t_screen *screen)
 {
     int material_index = sphere.material_index;
-    float3 color = scene->material_list[material_index].absorb_color;
+    float3 color = scene->material_list[material_index].color;
     set_pixel(screen, color);
 }
 
 void draw_plane(t_plane plane, t_scene *scene, t_screen *screen)
 {
     int material_index = plane.material_index;
-    float3 color = scene->material_list[material_index].absorb_color;
+    float3 color = scene->material_list[material_index].color;
     set_pixel(screen, color);
 }
 
@@ -68,9 +68,13 @@ void draw_scene(t_scene *scene, t_screen *screen, t_ray ray)
         {
 
             float dott = dot(intersection.normal, normalize(point_light->position - intersection_position));
-            float3 result_color = (float3){point_light->emission_color.x * dott * 1.0f/dist - material->absorb_color.x,
-                                            point_light->emission_color.y * dott * 1.0f/dist - material->absorb_color.y,
-                                            point_light->emission_color.z * dott * 1.0f/dist - material->absorb_color.z};
+            float3 result_color = (float3){point_light->color.x * dott * 1.0f/(dist)*point_light->power,
+                                            point_light->color.y * dott * 1.0f/(dist)*point_light->power,
+                                            point_light->color.z * dott * 1.0f/(dist)*point_light->power};
+                                             
+            result_color = clamp(result_color, 0.0f, 1.0f);
+            result_color = result_color - material->color;
+            result_color = clamp(result_color, 0.0f, 1.0f);
             set_pixel(screen, result_color);
         }
         else

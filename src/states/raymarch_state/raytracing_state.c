@@ -64,16 +64,17 @@ static void			update(struct s_state *this, float deltatime)
 	t_raytracing_state *state;
 
 	state = (t_raytracing_state *)this->instance_struct;
-	state->camera_look_angle.y += (float)state->input_manager->mouse_delta.x/10*deltatime;
-	state->camera_look_angle.x += (float)state->input_manager->mouse_delta.y/10*deltatime;
-	if (state->camera_look_angle.x > M_PI)
-		state->camera_look_angle.x -= (float)M_PI;
-//	if (state->camera_look_angle.y > M_PI/1.5)
-//		state->camera_look_angle.y -= M_PI/1.5;
-	if (state->camera_look_angle.x < M_PI)
-		state->camera_look_angle.x += (float)M_PI;
-//	if (state->camera_look_angle.y < M_PI/8)
-//		state->camera_look_angle.y = M_PI/8;
+	state->camera_look_angle.x += (float)state->input_manager->mouse_delta.x/3*deltatime;
+	state->camera_look_angle.y -= (float)state->input_manager->mouse_delta.y/3*deltatime;
+	if (state->camera_look_angle.y > M_PI*0.999f)
+		state->camera_look_angle.y = (float)M_PI*0.999f;
+    if (state->camera_look_angle.y < 0.001f)
+        state->camera_look_angle.y = 0.001f;
+
+	if (state->camera_look_angle.x > M_PI*2)
+		state->camera_look_angle.x -= M_PI*2;
+	if (state->camera_look_angle.x < -M_PI*2)
+		state->camera_look_angle.x += M_PI*2;
 //    camera_look_at(state->camera, (t_vec3) {{5.0f, 5.0f, 5.0f}},
 //                   (t_vec3) {{0.0f, 0.0f, 0.0f}},
 //                   (t_vec3) {{0.0f, -1.0f, 0.0f}});
@@ -99,14 +100,29 @@ static void			fixed_update(struct s_state *this, float deltatime)
 
 //	((t_shape_sphere *)((t_shape *)state->scene_items->spheres->content)->inhereted)->position.x += sin(state->mainloop->time_since_start)*100;
 //	state->scene_items->cached_spheres[0].position.x += sinf(state->mainloop->time_since_start)*deltatime;
-//	state->scene_items->cached_spheres[0].position.y += cosf(state->mainloop->time_since_start)*deltatime;
+	state->scene_items->cached_spheres[0].position.y += sinf(state->mainloop->time_since_start)*deltatime;
 //	state->scene_items->cached_point_lights[0].position.x += sinf(state->mainloop->time_since_start)*deltatime*10.0f;
 	state->scene_items->cached_point_lights[0].position.y += cosf(state->mainloop->time_since_start)*deltatime;
-	t_vec3 position = (t_vec3){{5.0f + cosf(state->camera_look_angle.x) * sinf(state->camera_look_angle.y),
-								5.0f + sinf(state->camera_look_angle.x) * sinf(state->camera_look_angle.y),
-								5.0f + cosf(state->camera_look_angle.y)}};
-	camera_look_at(state->camera, (t_vec3) {{5.0f, 5.0f, 5.0f}},
-				   position, (t_vec3) {{0.0f, -1.0f, 0.0f}});
+	t_vec3 forward = (t_vec3){{cosf(state->camera_look_angle.x) * sinf(state->camera_look_angle.y),
+								cosf(state->camera_look_angle.y),
+                                sinf(state->camera_look_angle.x) * sinf(state->camera_look_angle.y)}};
+	t_vec3 right = vec3_vec3_cross_val((t_vec3){{0.0f, -1.0f, 0.0f}}, forward);
+	t_vec3 up = vec3_vec3_cross_val(right, forward);
+    forward = vec3_vec3_sum_val(forward, state->camera_position);
+	camera_look_at(state->camera, state->camera_position,
+                   forward, up);
+    if(state->input_manager->is_key_down(state->input_manager, SDLK_w))
+        state->camera_position = vec3_vec3_sum_val(state->camera_position, vec3_scalar_div_val(state->camera->forward, 20.0f));
+    if(state->input_manager->is_key_down(state->input_manager, SDLK_s))
+        state->camera_position = vec3_vec3_sum_val(state->camera_position, vec3_scalar_div_val(state->camera->forward, -20.0f));
+    if(state->input_manager->is_key_down(state->input_manager, SDLK_a))
+        state->camera_position = vec3_vec3_sum_val(state->camera_position, vec3_scalar_div_val(state->camera->right, -20.0f));
+    if(state->input_manager->is_key_down(state->input_manager, SDLK_d))
+        state->camera_position = vec3_vec3_sum_val(state->camera_position, vec3_scalar_div_val(state->camera->right, 20.0f));
+    if(state->input_manager->is_key_down(state->input_manager, SDLK_SPACE))
+        state->camera_position = vec3_vec3_sum_val(state->camera_position, vec3_scalar_div_val(state->camera->up, -20.0f));
+    if(state->input_manager->is_key_down(state->input_manager, SDLK_c))
+        state->camera_position = vec3_vec3_sum_val(state->camera_position, vec3_scalar_div_val(state->camera->up, 20.0f));
 }
 
 static void 			input(struct s_state *this)
@@ -139,10 +155,11 @@ static void			destructor(struct s_state *this)
 	free(state->framebuffer);
     clReleaseMemObject(state->mem_image);
     clReleaseMemObject(state->mem_random_lookup);
-//    clReleaseMemObject(state->mem_random_lookup_size);
-//    clReleaseMemObject(state->mem_screen_geometry);
-//    clReleaseMemObject(state->mem_random_number);
-//    clReleaseMemObject(state->mem_skip_percentage);
+    clReleaseMemObject(state->mem_shape_list);
+    clReleaseMemObject(state->mem_point_light_list);
+    clReleaseMemObject(state->mem_plane_list);
+    clReleaseMemObject(state->mem_sphere_list);
+    clReleaseMemObject(state->mem_material_list);
 	clReleaseKernel(state->main_kernel);
 	clReleaseProgram(state->program);
 	clReleaseDevice(state->device_id);
@@ -168,12 +185,13 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 	raytracing_state->input_manager = input_manager;
 	raytracing_state->mainloop = mainloop;
 
-	raytracing_state->camera_look_angle = (t_vec2){{0.0f, 0.0f}};
+    raytracing_state->camera_look_angle = (t_vec2){{0.0f, 0.0f}};
+    raytracing_state->camera_position = (t_vec3){{5.0f, 5.0f, 5.0}};
     SDL_assert((raytracing_state->global_work_size = malloc(sizeof(size_t)*2)) != NULL);
     SDL_assert((raytracing_state->local_work_size = malloc(sizeof(size_t)*2)) != NULL);
     raytracing_state->camera = construct_camera(M_PI_4,
           (float)raytracing_state->framebuffer->resolution.x/raytracing_state->framebuffer->resolution.y);
-    camera_look_at(raytracing_state->camera, (t_vec3) {{5.0f, 5.0f, 5.0f}},
+    camera_look_at(raytracing_state->camera, raytracing_state->camera_position,
                    (t_vec3) {{0.0f, 0.0f, 0.0f}},
                    (t_vec3) {{0.0f, -1.0f, 0.0f}});
     raytracing_state->global_work_size[0] = raytracing_state->framebuffer->resolution.x;
@@ -195,33 +213,27 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 
     t_material *material;
     material = malloc(sizeof(t_material));
-    material->absorb_color = (t_vec3){{1.0f - 1.0f, 1.0f - 0.0f, 1.0f - 1.0f}};
-    material->emissive_color = (t_vec3){{0.0f, 0.0f, 0.0f}};
+    material->color = (t_vec3){{1.0f - 1.0f, 1.0f - 0.0f, 1.0f - 1.0f}};
     material->is_emissive = CL_FALSE;
     raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "purple");
 	material = malloc(sizeof(t_material));
-	material->absorb_color = (t_vec3){{1.0f - 1.0f, 1.0f - 0.0f, 1.0f - 0.0f}};
-	material->emissive_color = (t_vec3){{0.0f, 0.0f, 0.0f}};
+	material->color = (t_vec3){{1.0f - 1.0f, 1.0f - 0.0f, 1.0f - 0.0f}};
 	material->is_emissive = CL_FALSE;
 	raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "red");
 	material = malloc(sizeof(t_material));
-	material->absorb_color = (t_vec3){{1.0f - 0.0f, 1.0f - 1.0f, 1.0f - 0.0f}};
-	material->emissive_color = (t_vec3){{0.0f, 0.0f, 0.0f}};
+	material->color = (t_vec3){{1.0f - 0.0f, 1.0f - 1.0f, 1.0f - 0.0f}};
 	material->is_emissive = CL_FALSE;
 	raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "green");
 	material = malloc(sizeof(t_material));
-	material->absorb_color = (t_vec3){{1.0f - 0.0f, 1.0f - 0.0f, 1.0f - 1.0f}};
-	material->emissive_color = (t_vec3){{0.0f, 0.0f, 0.0f}};
+	material->color = (t_vec3){{1.0f - 0.0f, 1.0f - 0.0f, 1.0f - 1.0f}};
 	material->is_emissive = CL_FALSE;
 	raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "blue");
 	material = malloc(sizeof(t_material));
-	material->absorb_color = (t_vec3){{1.0f - 1.0f, 1.0f - 1.0f, 1.0f - 0.0f}};
-	material->emissive_color = (t_vec3){{0.0f, 0.0f, 0.0f}};
+	material->color = (t_vec3){{1.0f - 1.0f, 1.0f - 1.0f, 1.0f - 0.0f}};
 	material->is_emissive = CL_FALSE;
 	raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "yellow");
 	material = malloc(sizeof(t_material));
-	material->absorb_color = (t_vec3){{1.0f - 0.8f, 1.0f - 0.529f, 1.0f - 0.019f}};
-	material->emissive_color = (t_vec3){{0.0f, 0.0f, 0.0f}};
+	material->color = (t_vec3){{1.0f - 0.8f, 1.0f - 0.529f, 1.0f - 0.019f}};
 	material->is_emissive = CL_FALSE;
 	raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "brown");
 
@@ -231,7 +243,7 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 
 	sphere = malloc(sizeof(t_shape_sphere));
 	sphere->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "red");
-	sphere->position = (t_vec3){{0.0f, 4.0f, 0.0f}};
+	sphere->position = (t_vec3){{0.0f, 6.0f, 0.0f}};
 	sphere->radius = 1.0f;
 	raytracing_state->scene_items->add_sphere(raytracing_state->scene_items, sphere, "sphere1");
 	sphere = malloc(sizeof(t_shape_sphere));
@@ -244,13 +256,33 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 	plane = malloc(sizeof(t_shape_plane));
 	plane->normal = (t_vec3){{0.0f, 1.0f, 0.0f}};
 	plane->position = (t_vec3){{0.0f, 0.0f, 0.0f}};
-	plane->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "blue");
+	plane->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "green");
 	raytracing_state->scene_items->add_plane(raytracing_state->scene_items, plane, "plane1");
-	plane = malloc(sizeof(t_shape_plane));
-	plane->normal = (t_vec3){{0.0f, -1.0f, 0.0f}};
-	plane->position = (t_vec3){{0.0f, 10.0f, 0.0f}};
-	plane->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "yellow");
-	raytracing_state->scene_items->add_plane(raytracing_state->scene_items, plane, "plane2");
+    plane = malloc(sizeof(t_shape_plane));
+    plane->normal = (t_vec3){{0.0f, -1.0f, 0.0f}};
+    plane->position = (t_vec3){{0.0f, 10.0f, 0.0f}};
+    plane->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "yellow");
+    raytracing_state->scene_items->add_plane(raytracing_state->scene_items, plane, "plane2");
+    plane = malloc(sizeof(t_shape_plane));
+    plane->normal = (t_vec3){{1.0f, 0.0f, 0.0f}};
+    plane->position = (t_vec3){{-10.0f, 0.0f, 0.0f}};
+    plane->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "blue");
+    raytracing_state->scene_items->add_plane(raytracing_state->scene_items, plane, "plane3");
+    plane = malloc(sizeof(t_shape_plane));
+    plane->normal = (t_vec3){{-1.0f, 0.0f, 0.0f}};
+    plane->position = (t_vec3){{10.0f, 10.0f, 0.0f}};
+    plane->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "yellow");
+    raytracing_state->scene_items->add_plane(raytracing_state->scene_items, plane, "plane4");
+    plane = malloc(sizeof(t_shape_plane));
+    plane->normal = (t_vec3){{0.0f, 0.0f, -1.0f}};
+    plane->position = (t_vec3){{0.0f, 0.0f, 10.0f}};
+    plane->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "yellow");
+    raytracing_state->scene_items->add_plane(raytracing_state->scene_items, plane, "plane5");
+    plane = malloc(sizeof(t_shape_plane));
+    plane->normal = (t_vec3){{0.0f, 0.0f, 1.0f}};
+    plane->position = (t_vec3){{0.0f, 0.0f, -10.0f}};
+    plane->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "yellow");
+    raytracing_state->scene_items->add_plane(raytracing_state->scene_items, plane, "plane6");
 //	plane = malloc(sizeof(t_shape_plane));
 //	plane->normal = (t_vec3){{0.0f, 0.0f, 1.0f}};
 //	plane->position = (t_vec3){{0.0f, 0.0f, 10.0f}};
@@ -261,9 +293,11 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 
     t_point_light *point_light;
     point_light = malloc(sizeof(t_point_light));
-    point_light->emission_color = (t_vec3){{1.0f, 0.0f, 1.0f}};
-    point_light->position = (t_vec3){{5.0f, 4.0f, 0.0f}};
+    point_light->color = (t_vec3){{1.0f, 1.0f, 1.0f}};
+    point_light->position = (t_vec3){{5.0f, 6.0f, 0.0f}};
+    point_light->power = 2.0f;
     raytracing_state->scene_items->add_point_light(raytracing_state->scene_items, point_light, "main_point_light");
+
     raytracing_state->scene_items->list(raytracing_state->scene_items);
     raytracing_state->scene_items->cache_full(raytracing_state->scene_items);
 

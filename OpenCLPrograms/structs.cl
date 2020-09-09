@@ -16,9 +16,8 @@ typedef struct
 
 typedef struct
 {
-    float3 absorb_color;
+    float3 color;
     bool is_emissive;
-    float3 emissive_color;
 } t_material;
 
 typedef struct
@@ -64,7 +63,8 @@ typedef struct
 typedef struct
 {
     float3 position;
-    float3 emission_color;
+    float3 color;
+    float power;
 } t_point_light;
 
 typedef struct
