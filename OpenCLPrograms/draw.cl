@@ -72,13 +72,15 @@ void draw_scene(t_scene *scene, t_screen *screen, t_ray ray)
                                             point_light->color.y * dott * 1.0f/(dist)*point_light->power,
                                             point_light->color.z * dott * 1.0f/(dist)*point_light->power};
                                              
-            result_color = clamp(result_color, 0.0f, 1.0f);
+            // result_color = clamp(result_color, 0.0f, 1.0f);
             result_color = result_color - material->color;
             result_color = clamp(result_color, 0.0f, 1.0f);
             set_pixel(screen, result_color);
+            // set_pixel(screen, intersection.normal);
         }
         else
-            set_pixel(screen, (float3){0.0f, 0.0f, 0.0f});
+        set_pixel(screen, (float3){0.0f, 0.0f, 0.0f});
+            // set_pixel(screen, intersection.normal);
     }
     else
         set_pixel(screen, (float3){0.0f, 0.0f, 0.0f});

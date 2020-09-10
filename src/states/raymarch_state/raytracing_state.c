@@ -64,8 +64,8 @@ static void			update(struct s_state *this, float deltatime)
 	t_raytracing_state *state;
 
 	state = (t_raytracing_state *)this->instance_struct;
-	state->camera_look_angle.x += (float)state->input_manager->mouse_delta.x/3*deltatime;
-	state->camera_look_angle.y -= (float)state->input_manager->mouse_delta.y/3*deltatime;
+	state->camera_look_angle.x -= (float)state->input_manager->mouse_delta.x/3*deltatime;
+	state->camera_look_angle.y += (float)state->input_manager->mouse_delta.y/3*deltatime;
 	if (state->camera_look_angle.y > M_PI*0.999f)
 		state->camera_look_angle.y = (float)M_PI*0.999f;
     if (state->camera_look_angle.y < 0.001f)
@@ -100,13 +100,13 @@ static void			fixed_update(struct s_state *this, float deltatime)
 
 //	((t_shape_sphere *)((t_shape *)state->scene_items->spheres->content)->inhereted)->position.x += sin(state->mainloop->time_since_start)*100;
 //	state->scene_items->cached_spheres[0].position.x += sinf(state->mainloop->time_since_start)*deltatime;
-	state->scene_items->cached_spheres[0].position.y += sinf(state->mainloop->time_since_start)*deltatime;
+//	state->scene_items->cached_spheres[0].position.y += sinf(state->mainloop->time_since_start)*deltatime;
 //	state->scene_items->cached_point_lights[0].position.x += sinf(state->mainloop->time_since_start)*deltatime*10.0f;
 	state->scene_items->cached_point_lights[0].position.y += cosf(state->mainloop->time_since_start)*deltatime;
 	t_vec3 forward = (t_vec3){{cosf(state->camera_look_angle.x) * sinf(state->camera_look_angle.y),
 								cosf(state->camera_look_angle.y),
                                 sinf(state->camera_look_angle.x) * sinf(state->camera_look_angle.y)}};
-	t_vec3 right = vec3_vec3_cross_val((t_vec3){{0.0f, -1.0f, 0.0f}}, forward);
+	t_vec3 right = vec3_vec3_cross_val((t_vec3){{0.0f, 1.0f, 0.0f}}, forward);
 	t_vec3 up = vec3_vec3_cross_val(right, forward);
     forward = vec3_vec3_sum_val(forward, state->camera_position);
 	camera_look_at(state->camera, state->camera_position,
@@ -180,7 +180,7 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 	SDL_assert((raytracing_state = malloc(sizeof(t_raytracing_state))) != NULL);
 	state->instance_struct = (void *)raytracing_state;
 
-	raytracing_state->framebuffer = construct_framebuffer(sdl_instance->resolution, sdl_instance);
+	raytracing_state->framebuffer = construct_framebuffer(ivec2_scalar_div(&sdl_instance->resolution, 2), sdl_instance);
 	raytracing_state->sdl_instance = sdl_instance;
 	raytracing_state->input_manager = input_manager;
 	raytracing_state->mainloop = mainloop;
@@ -247,7 +247,7 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 	sphere->radius = 1.0f;
 	raytracing_state->scene_items->add_sphere(raytracing_state->scene_items, sphere, "sphere1");
 	sphere = malloc(sizeof(t_shape_sphere));
-	sphere->position = (t_vec3){{0.0f, 3.0f, 0.0f}};
+	sphere->position = (t_vec3){{0.0f, 1.0f, 0.0f}};
 	sphere->radius = 1.0f;
 	sphere->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "green");
 	raytracing_state->scene_items->add_sphere(raytracing_state->scene_items, sphere, "sphere2");

@@ -78,7 +78,7 @@ bool intersect_sphere(__global t_sphere *sphere, t_intersection *intersection)
     intersection->dist = t0;
     intersection->normal = local_ray.direction * t0;
     intersection->normal = local_ray.origin + intersection->normal;
-    intersection->normal = intersection->normal + sphere->position;
+    intersection->normal = intersection->normal - sphere->position;
     intersection->normal = normalize(intersection->normal);
     intersection->shape = (__global void*)sphere;
     intersection->shape_type = SHAPE_SPHERE;
