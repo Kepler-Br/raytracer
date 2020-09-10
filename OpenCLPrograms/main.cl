@@ -1,6 +1,7 @@
 #include "./OpenCLPrograms/structs.cl"
 #include "./OpenCLPrograms/intersection.cl"
 #include "./OpenCLPrograms/draw.cl"
+#include "./OpenCLPrograms/tools.cl"
 
 t_ray make_ray(t_camera *cam, float2 screen_point);
 void construct_scene(t_scene *scene,
@@ -65,6 +66,16 @@ void construct_screen(t_screen *screen, __global char *image_array,
     screen->image_array = image_array;
 }
 
+void construct_random(t_random *random, __global int *random_array,
+            int size, int host_random_number, int2 global_id)
+{
+    random->array = random_array;
+    random->size = size;
+    random->host_random_number = host_random_number;
+    random->global_id = global_id;
+    random->iteration = 0;
+}
+
 __kernel void main_kernel(
                           __global char *image_array, __global int *random_array,
                           int random_array_size, int2 screen_geometry, int random_number,
@@ -78,6 +89,7 @@ __kernel void main_kernel(
 {
     t_screen screen;
     t_scene scene;
+    t_random random;
     int image_x = get_global_id(0);
     int image_y = get_global_id(1);
     float2 screen_coordinates;
@@ -91,8 +103,17 @@ __kernel void main_kernel(
                            point_light_list, point_light_count,
                            material_list, material_count,
                            shape_list, shape_count);
-    
     construct_screen(&screen, image_array, screen_geometry, image_x, image_y);
+    construct_random(&random, random_array, random_array_size, random_number,
+                    (int2){image_x, image_y});
     t_ray ray = make_ray(&cam, screen_coordinates);
-    draw_scene(&scene, &screen, ray);
+    // if(image_x == 0 && image_y == 0)
+    // {
+    //     printf("%f ", randf(&random));
+    //     printf("%f ", randf(&random));
+    //     printf("%f ", randf(&random));
+    //     printf("%f ", randf(&random));
+    //     printf("%f\n", randf(&random));
+    // }
+    draw_scene(&scene, &screen, &random, ray);
 }

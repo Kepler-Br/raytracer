@@ -42,7 +42,8 @@ typedef struct
     t_ray ray;
     float dist;
     float3 normal;
-    __global void *shape;
+    // __global void *shape;
+    int shape_index;
     int shape_type;
 } t_intersection;
 
@@ -89,4 +90,12 @@ typedef struct
     __global char *image_array;
 } t_screen;
 
+typedef struct
+{
+    __global int *array;
+    int size;
+    int host_random_number;
+    int2 global_id;
+    int iteration;
+} t_random;
 #endif
