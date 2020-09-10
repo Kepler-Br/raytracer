@@ -3,12 +3,13 @@
 void update(struct s_input_manager *this)
 {
     SDL_Event event;
-    t_ivec2 mouse_move;
+//    t_ivec2 mouse_move;
+
 
 //    SDL_GetMouseState(&mouse_move.x, &mouse_move.y);
 //    SDL_GetGlobalMouseState(&mouse_move.x, &mouse_move.y);
 //    this->mouse_delta = ivec2_ivec2_sub(&mouse_move, &this->current_mouse);
-    this->current_mouse = mouse_move;
+//    this->current_mouse = mouse_move;
     while(SDL_PollEvent(&event))
     {
         if(event.type == SDL_WINDOWEVENT)
