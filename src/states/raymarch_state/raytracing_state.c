@@ -236,6 +236,10 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 	material->color = (t_vec3){{1.0f - 0.8f, 1.0f - 0.529f, 1.0f - 0.019f}};
 	material->is_emissive = CL_FALSE;
 	raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "brown");
+	material = malloc(sizeof(t_material));
+	material->color = (t_vec3){{1.0f, 1.0f, 1.0f}};
+	material->is_emissive = CL_TRUE;
+	raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "emissive");
 
 
 	t_shape_sphere *sphere;
@@ -244,12 +248,12 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 	sphere = malloc(sizeof(t_shape_sphere));
 	sphere->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "red");
 	sphere->position = (t_vec3){{0.0f, 6.0f, 0.0f}};
-	sphere->radius = 1.0f;
+	sphere->radius = 2.0f;
 	raytracing_state->scene_items->add_sphere(raytracing_state->scene_items, sphere, "sphere1");
 	sphere = malloc(sizeof(t_shape_sphere));
 	sphere->position = (t_vec3){{0.0f, 1.0f, 0.0f}};
 	sphere->radius = 1.0f;
-	sphere->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "green");
+	sphere->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "emissive");
 	raytracing_state->scene_items->add_sphere(raytracing_state->scene_items, sphere, "sphere2");
 
 

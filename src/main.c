@@ -50,7 +50,7 @@ int main()
 
     t_mainloop *mainloop;
     t_state *raytracing_state;
-	t_ivec2 resolution = (t_ivec2){{800, 600}};
+	t_ivec2 resolution = (t_ivec2){{2000, 2000}};
 
     mainloop = construct_mainloop(resolution, "Realtime raytrasing");
 	raytracing_state = construct_raytracing_state(mainloop->input_manager, mainloop->sdl_instance, mainloop);
