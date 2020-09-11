@@ -42,7 +42,6 @@ typedef struct
     t_ray ray;
     float dist;
     float3 normal;
-    // __global void *shape;
     int shape_index;
     int shape_type;
 } t_intersection;

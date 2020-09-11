@@ -6,12 +6,6 @@
 #include "tools.cl"
 
 
-void set_pixel(t_screen *screen, float3 color);
-void draw_sphere(t_sphere sphere, t_scene *scene, t_screen *screen);
-void draw_plane(t_plane plane, t_scene *scene, t_screen *screen);
-void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray);
-
-
 void set_pixel(t_screen *screen, float3 color)
 {
     const uint color_count = 4;
@@ -52,13 +46,15 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
     {
         if(intersection.shape_type == SHAPE_PLANE)
         {
-            plane = (__global t_plane *)intersection.shape;
+            // plane = (__global t_plane *)intersection.shape;
+            plane = &scene->plane_list[intersection.shape_index];
             material_index = plane->material_index;
             material = &scene->material_list[material_index];
         }
         if(intersection.shape_type == SHAPE_SPHERE)
         {
-            sphere = (__global t_sphere *)intersection.shape;
+            // sphere = (__global t_sphere *)intersection.shape;
+            sphere = &scene->sphere_list[intersection.shape_index];
             material_index = sphere->material_index;
             material = &scene->material_list[material_index];
         }
@@ -77,7 +73,9 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
             result_color = result_color - material->color;
             result_color = clamp(result_color, 0.0f, 1.0f);
             float3 random_direction = rand_point_on_hemisphere(random);
+            random_direction = to_world_coordinates(intersection.normal, random_direction);
             intersection.ray.direction = random_direction;
+            intersection.ray.max_dist = 10.0f;
             // random_direction += intersection_position;
             
             if(intersect(scene, &intersection))
@@ -86,14 +84,14 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
                 if(intersection.shape_type == SHAPE_PLANE)
                 {
                     // plane = (__global t_plane *)intersection.shape;
-                     plane = &scene->plane_list[0];
+                     plane = &scene->plane_list[intersection.shape_index];
                     material_index = plane->material_index;
                     material = &scene->material_list[material_index];
                 }
                 else if(intersection.shape_type == SHAPE_SPHERE)
                 {
                     // sphere = (__global t_sphere *)intersection.shape;
-                    sphere = &scene->sphere_list[0];
+                    sphere = &scene->sphere_list[intersection.shape_index];
                     material_index = sphere->material_index;
                     material = &scene->material_list[material_index];
                 }
@@ -106,10 +104,10 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
                                                 point_light->color.z * dott * 1.0f/(dist)*point_light->power};
                     bounce_color = bounce_color - material->color;
                     // printf("%p\n", material);
-                    // bounce_color = clamp(bounce_color, 0.0f, 1.0f);
+                    bounce_color = clamp(bounce_color, 0.0f, 1.0f);
                     // dott = dot(intersection.ray.direction, );
                     // printf("%f %f %f\n", material->color.x, material->color.y, material->color.z);
-                    result_color = (result_color + bounce_color)/2.0f;
+                    result_color = (result_color * bounce_color)/1.0f;
                 }
             }
             set_pixel(screen, result_color);
