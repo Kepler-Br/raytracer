@@ -121,7 +121,7 @@ static void			fixed_update(struct s_state *this, float deltatime)
         state->camera_position = vec3_vec3_sum_val(state->camera_position, vec3_scalar_div_val(state->camera->right, 20.0f));
     if(state->input_manager->is_key_down(state->input_manager, SDLK_SPACE))
         state->camera_position = vec3_vec3_sum_val(state->camera_position, vec3_scalar_div_val(state->camera->up, -20.0f));
-    if(state->input_manager->is_key_down(state->input_manager, SDLK_c))
+    if(state->input_manager->is_key_down(state->input_manager, SDLK_LCTRL))
         state->camera_position = vec3_vec3_sum_val(state->camera_position, vec3_scalar_div_val(state->camera->up, 20.0f));
 }
 
@@ -180,7 +180,7 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 	SDL_assert((raytracing_state = malloc(sizeof(t_raytracing_state))) != NULL);
 	state->instance_struct = (void *)raytracing_state;
 
-	raytracing_state->framebuffer = construct_framebuffer(ivec2_scalar_div(&sdl_instance->resolution, 2), sdl_instance);
+	raytracing_state->framebuffer = construct_framebuffer(ivec2_scalar_div(&sdl_instance->resolution, 1), sdl_instance);
 	raytracing_state->sdl_instance = sdl_instance;
 	raytracing_state->input_manager = input_manager;
 	raytracing_state->mainloop = mainloop;
