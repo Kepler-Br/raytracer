@@ -21,26 +21,26 @@ float randf(t_random *random)
 
 float3 rand_point_on_hemisphere(t_random *random)
 {
-    // float3 result;
-    // float theta;
-    // float phi;
+    float3 result;
+    float theta;
+    float phi;
     
-    // theta = randf(random)*2.0f*M_PI_F;
-    // phi = randf(random)*(M_PI_F/2.0f);
+    theta = randf(random)*2.0f*M_PI_F;
+    phi = randf(random)*(M_PI_F/2.0f);
 
-    // result = (float3){
-    //     sin(theta) * cos(phi),
-    //     cos(theta),
-    //     sin(theta) * sin(phi)
-    // };
-    // return (result);
-    float r1 = randf(random)*2.0f*M_PI_F;
-    float r2 = randf(random)*(M_PI_F/2.0f);
-    float sinTheta = sqrt(1 - r1 * r1); 
-    float phi = 2 * M_PI_F * r2; 
-    float x = sinTheta * cos(phi); 
-    float z = sinTheta * sin(phi);
-    return (float3){x, r1, z}; 
+    result = (float3){
+        sin(theta) * cos(phi),
+        cos(theta),
+        sin(theta) * sin(phi)
+    };
+    return (result);
+    // float r1 = randf(random)*2.0f*M_PI_F;
+    // float r2 = randf(random)*(M_PI_F/2.0f);
+    // float sinTheta = sqrt(1 - r1 * r1); 
+    // float phi = 2 * M_PI_F * r2; 
+    // float x = sinTheta * cos(phi); 
+    // float z = sinTheta * sin(phi);
+    // return (float3){x, r1, z}; 
 }
 
 
