@@ -67,18 +67,21 @@ void construct_screen(t_screen *screen, __global char *image_array,
 }
 
 void construct_random(t_random *random, __global int *random_array,
-            int size, int host_random_number, int2 global_id)
+            int size, int2 host_random_number, int2 global_id)
 {
     random->array = random_array;
     random->size = size;
     random->host_random_number = host_random_number;
     random->global_id = global_id;
     random->iteration = 0;
+    random->state.x = host_random_number.x*(global_id.y+1);
+    random->state.c = host_random_number.y*(global_id.x+1);
+    // MWC64X_SeedStreams(&random->state, host_random_number.x, 2*(global_id.x+1)*(global_id.y+1));
 }
 
 __kernel void main_kernel(
                           __global char *image_array, __global int *random_array,
-                          int random_array_size, int2 screen_geometry, int random_number,
+                          int random_array_size, int2 screen_geometry, int2 random_number,
                           int skip_percentage, t_camera cam,
                           __global t_sphere *sphere_list, int sphere_count,
                           __global t_plane *plane_list, int plane_count,
@@ -93,9 +96,7 @@ __kernel void main_kernel(
     int image_x = get_global_id(0);
     int image_y = get_global_id(1);
     float2 screen_coordinates;
-    
-    image_x = get_global_id(0);
-    image_y = get_global_id(1);
+
     screen_coordinates = (float2){2.0f * image_x / screen_geometry.x - 1.0f,
                                          2.0f * image_y / screen_geometry.y - 1.0f};
     construct_scene(&scene, sphere_list, sphere_count,
@@ -107,13 +108,5 @@ __kernel void main_kernel(
     construct_random(&random, random_array, random_array_size, random_number,
                     (int2){image_x, image_y});
     t_ray ray = make_ray(&cam, screen_coordinates);
-    // if(image_x == 0 && image_y == 0)
-    // {
-    //     printf("%f ", randf(&random));
-    //     printf("%f ", randf(&random));
-    //     printf("%f ", randf(&random));
-    //     printf("%f ", randf(&random));
-    //     printf("%f\n", randf(&random));
-    // }
     draw_scene(&scene, &screen, &random, ray);
 }

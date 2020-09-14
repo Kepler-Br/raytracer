@@ -36,6 +36,8 @@ static void run(t_mainloop *this)
         if(this->frame_count % ((int)(1.0f/this->deltatime) == 0 ? 1 : (int)(1.0f/this->deltatime)) == 0)
             printf("%d\n", (int)(1.0f/this->deltatime));
         this->limit_fps(this);
+        this->input_manager->mouse_delta.x = 0.0f;
+        this->input_manager->mouse_delta.y = 0.0f;
     }
 }
 
@@ -101,7 +103,7 @@ t_mainloop *construct_mainloop(t_ivec2 resolution, const char * const title)
     this->deltatime = 1.0f;
 	this->time_since_start = 1.0f;
     this->frame_count = 0;
-    this->max_fps = 60;
+    this->max_fps = 600;
     this->fixed_update_step_time = 0.01f;
 	this->state_stack = NULL;
 
