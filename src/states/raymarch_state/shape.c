@@ -86,6 +86,28 @@ t_shape *construct_shape_sphere(t_vec3 position, float radius, char *name)
     return (shape);
 }
 
+static void destruct_shape_cube(void *this)
+{
+}
+
+t_shape *construct_shape_cube(t_vec3 min, t_vec3 max, char *name)
+{
+	t_shape *shape;
+	t_shape_cube *cube;
+
+	SDL_assert((cube = malloc(sizeof (t_shape_cube))) != NULL);
+	SDL_assert((shape = malloc(sizeof (t_shape))) != NULL);
+	SDL_assert((shape->name = ft_strdup(name)) != NULL);
+
+	cube->min = min;
+	cube->max = max;
+	shape->inhereted = (void *)cube;
+	shape->shape_type = SHAPE_CUBE;
+
+	shape->destructor = &destruct_shape_cube;
+	return (shape);
+}
+
 void destruct_shape(t_shape *this)
 {
 	free(this->name);

@@ -7,6 +7,7 @@
 #define SHAPE_PLANE 1
 #define SHAPE_SPHERE 2
 #define SHAPE_POINT_LIGHT 3
+#define SHAPE_CUBE 4
 
 typedef struct
 {
@@ -61,6 +62,13 @@ typedef struct
 
 typedef struct
 {
+    float3 min;
+    float3 max;
+    uint material_index;
+} t_cube;
+
+typedef struct
+{
     float3 position;
     float3 normal;
     uint material_index;
@@ -81,6 +89,8 @@ typedef struct
     int plane_count;
     __global t_point_light *point_light_list;
     int point_light_count;
+    __global t_cube *cube_list;
+    int cube_count;
     __global t_shape *shape_list;
     int shape_count;
     __global t_material *material_list;

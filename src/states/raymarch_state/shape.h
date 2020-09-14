@@ -7,6 +7,7 @@
 #define SHAPE_PLANE 1
 #define SHAPE_SPHERE 2
 #define SHAPE_POINT_LIGHT 3
+#define SHAPE_CUBE 4
 
 typedef struct s_intersection t_intersection;
 typedef struct s_ray t_ray;
@@ -68,6 +69,16 @@ typedef struct s_shape_sphere
     cl_uint material_index;
 } t_shape_sphere;
 
+
 t_shape *construct_shape_sphere(t_vec3 position, float radius, char *name);
 
+
+typedef struct s_shape_cube
+{
+	t_vec3 min;
+	t_vec3 max;
+	cl_uint material_index;
+} t_shape_cube;
+
+t_shape *construct_shape_cube(t_vec3 min, t_vec3 max, char *name);
 #endif // SHAPE_H
