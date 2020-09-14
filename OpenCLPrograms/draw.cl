@@ -17,6 +17,18 @@ void set_pixel(t_screen *screen, float3 color)
 }
 
 
+float3 get_pixel(t_screen *screen)
+{
+    const uint color_count = 4;
+    float3 color;
+
+    uint index = (screen->geometry.x * screen->current_y + screen->current_x) * color_count;
+    color = (float3){(float)screen->image_array[index]/255.0f,
+                     (float)screen->image_array[index + 1]/255.0f,
+                     (float)screen->image_array[index + 2]/255.0f};
+    return (color);
+}
+
 void draw_sphere(t_sphere sphere, t_scene *scene, t_screen *screen)
 {
     int material_index = sphere.material_index;
@@ -94,12 +106,19 @@ float3 get_surface_color(t_intersection *intersection, t_scene *scene)
         return ((float3){0.0f, 0.0f, 0.0f});
 }
 
+float3	lerp(float3 source, float3 target, float t)
+{
+	return ((float3){(1.0f - t) * source.x + t * target.x,
+					 (1.0f - t) * source.y + t * target.y,
+					 (1.0f - t) * source.z + t * target.z});
+}
+
 void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
 {
     t_intersection intersection;
     __global t_sphere *sphere;
     __global t_plane *plane;
-    const int max_indirect_rays = 16;
+    const int max_indirect_rays = 2;
 
     intersection.ray = ray;
     intersection.ray.max_dist = 500.0f;
@@ -129,7 +148,7 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
                 // }
                 // else
                 // {
-                    surface_color1 = dot(world_sample, max_indirect_rays) * surface_color1;//*1.0f/get_intersection_position(&bounce_intersection);
+                    surface_color1 = dot(world_sample, intersection.normal) * surface_color1;//*1.0f/get_intersection_position(&bounce_intersection);
                     bounce_color += surface_color1;
                 // }
             }
@@ -137,9 +156,12 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
                 ;
             index--;
         }
-        bounce_color /= max_indirect_rays * (1.0f / (2.0f * M_PI_F)); 
+        bounce_color /= (float)max_indirect_rays * (1.0f / (2.0f * M_PI_F)); 
         surface_color = bounce_color * surface_color;
-        set_pixel(screen, surface_color);
+        surface_color = clamp(surface_color, 0.0f, 1.0f);
+        float3 prev_radiance = get_pixel(screen);
+        float3 accumulated_radiance = lerp(prev_radiance, surface_color, 0.1f);
+        set_pixel(screen, accumulated_radiance);
     }
     else
         set_pixel(screen, (float3){0.0f, 0.0f, 0.0f});

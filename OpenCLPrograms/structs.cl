@@ -10,6 +10,12 @@
 
 typedef struct
 {
+    uint x;
+    uint c;
+} mwc64x_state_t;
+
+typedef struct
+{
     int type;
     int index;
 } t_shape;
@@ -93,8 +99,9 @@ typedef struct
 {
     __global int *array;
     int size;
-    int host_random_number;
+    int2 host_random_number;
     int2 global_id;
     int iteration;
+    mwc64x_state_t state;
 } t_random;
 #endif

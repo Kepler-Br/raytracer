@@ -68,7 +68,6 @@ t_framebuffer *construct_framebuffer(const t_ivec2 resolution, t_sdl_instance *s
     this->destroy = &destroy;
     this->put = &put;
 
-//    this->init(this, resolution);
     this->init(this, resolution);
     return (this);
 }

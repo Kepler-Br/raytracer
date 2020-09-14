@@ -6,9 +6,10 @@
 static void			pre_render(struct s_state *this)
 {
 	t_raytracing_state *state;
-	cl_int random_number;
+	cl_int2 random_number;
 
-	random_number = random();
+    random_number.x = random();
+    random_number.y = random();
 
 	state = (t_raytracing_state *)this->instance_struct;
 	state->framebuffer->lock(state->framebuffer);
@@ -24,7 +25,7 @@ static void			pre_render(struct s_state *this)
     ocl_set_kernel_arg(state->main_kernel, 1, sizeof(cl_mem), (void *)&state->mem_random_lookup);
     ocl_set_kernel_arg(state->main_kernel, 2, sizeof(cl_int), (void *)&state->random_lookup_size);
     ocl_set_kernel_arg(state->main_kernel, 3, sizeof(cl_int2), (void *)&state->framebuffer->resolution);
-    ocl_set_kernel_arg(state->main_kernel, 4, sizeof(cl_int), (void *)&random_number);
+    ocl_set_kernel_arg(state->main_kernel, 4, sizeof(cl_int2), (void *)&random_number);
     ocl_set_kernel_arg(state->main_kernel, 5, sizeof(cl_int), (void *)&state->skip_percentage);
     ocl_set_kernel_arg(state->main_kernel, 6, sizeof(t_camera), (void *)state->camera);
     ocl_set_kernel_arg(state->main_kernel, 7, sizeof(cl_mem), (void *)&state->mem_sphere_list);
@@ -180,7 +181,7 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 	SDL_assert((raytracing_state = malloc(sizeof(t_raytracing_state))) != NULL);
 	state->instance_struct = (void *)raytracing_state;
 
-	raytracing_state->framebuffer = construct_framebuffer(ivec2_scalar_div(&sdl_instance->resolution, 1), sdl_instance);
+	raytracing_state->framebuffer = construct_framebuffer(ivec2_scalar_div(&sdl_instance->resolution, 4), sdl_instance);
 	raytracing_state->sdl_instance = sdl_instance;
 	raytracing_state->input_manager = input_manager;
 	raytracing_state->mainloop = mainloop;
@@ -253,7 +254,7 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 	sphere = malloc(sizeof(t_shape_sphere));
 	sphere->position = (t_vec3){{0.0f, 1.0f, 0.0f}};
 	sphere->radius = 1.0f;
-	sphere->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "emissive");
+	sphere->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "blue");
 	raytracing_state->scene_items->add_sphere(raytracing_state->scene_items, sphere, "sphere2");
 
 
@@ -299,7 +300,7 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
     point_light = malloc(sizeof(t_point_light));
     point_light->color = (t_vec3){{1.0f, 1.0f, 1.0f}};
     point_light->position = (t_vec3){{5.0f, 6.0f, 0.0f}};
-    point_light->power = 2.0f;
+    point_light->power = 8.0f;
     raytracing_state->scene_items->add_point_light(raytracing_state->scene_items, point_light, "main_point_light");
 
     raytracing_state->scene_items->list(raytracing_state->scene_items);
