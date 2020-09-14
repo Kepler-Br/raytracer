@@ -3,17 +3,6 @@
 #include "./OpenCLPrograms/draw.cl"
 #include "./OpenCLPrograms/tools.cl"
 
-t_ray make_ray(t_camera *cam, float2 screen_point);
-void construct_scene(t_scene *scene,
-                    __global t_sphere *sphere_list, int sphere_count,
-                    __global t_plane *plane_list, int plane_count,
-                    __global t_point_light *point_light_list, int point_light_count,
-                    __global t_material *material_list, int material_count,
-                    __global t_shape *shape_list, int shape_count);
-
-void construct_screen(t_screen *screen, __global char *image_array,
-                    int2 screen_geometry, int x, int y);
-
 t_ray make_ray(t_camera *cam, float2 screen_point)
 {
     float3 direction;
@@ -39,7 +28,8 @@ void construct_scene(t_scene *scene,
                     __global t_plane *plane_list, int plane_count,
                     __global t_point_light *point_light_list, int point_light_count,
                     __global t_material *material_list, int material_count,
-                    __global t_shape *shape_list, int shape_count)
+                    __global t_shape *shape_list, int shape_count,
+                    __global t_cube *cube_list, int cube_count)
 {
     scene->sphere_list = sphere_list;
     scene->sphere_count = sphere_count;
@@ -49,6 +39,9 @@ void construct_scene(t_scene *scene,
 
     scene->point_light_list = point_light_list;
     scene->point_light_count = point_light_count;
+
+    scene->cube_list = cube_list;
+    scene->cube_count = cube_count;
 
     scene->material_list = material_list;
     scene->material_count = material_count;
@@ -87,7 +80,8 @@ __kernel void main_kernel(
                           __global t_plane *plane_list, int plane_count,
                           __global t_point_light *point_light_list, int point_light_count,
                           __global t_material *material_list, int material_count,
-                          __global t_shape *shape_list, int shape_count
+                          __global t_shape *shape_list, int shape_count,
+                          __global t_cube *cube_list, int cube_count
                           )
 {
     t_screen screen;
@@ -98,12 +92,13 @@ __kernel void main_kernel(
     float2 screen_coordinates;
 
     screen_coordinates = (float2){2.0f * image_x / screen_geometry.x - 1.0f,
-                                         2.0f * image_y / screen_geometry.y - 1.0f};
+                                  2.0f * image_y / screen_geometry.y - 1.0f};
     construct_scene(&scene, sphere_list, sphere_count,
-                           plane_list, plane_count,
-                           point_light_list, point_light_count,
-                           material_list, material_count,
-                           shape_list, shape_count);
+                    plane_list, plane_count,
+                    point_light_list, point_light_count,
+                    material_list, material_count,
+                    shape_list, shape_count,
+                    cube_list, cube_count);
     construct_screen(&screen, image_array, screen_geometry, image_x, image_y);
     construct_random(&random, random_array, random_array_size, random_number,
                     (int2){image_x, image_y});

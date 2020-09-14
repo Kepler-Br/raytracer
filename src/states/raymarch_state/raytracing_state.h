@@ -33,7 +33,8 @@ typedef struct	s_raytracing_state
 	cl_mem mem_image;
     cl_mem mem_random_lookup;
     cl_mem mem_sphere_list;
-    cl_mem mem_plane_list;
+	cl_mem mem_plane_list;
+	cl_mem mem_cube_list;
     cl_mem mem_point_light_list;
     cl_mem mem_material_list;
     cl_mem mem_shape_list;

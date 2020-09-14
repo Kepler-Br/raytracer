@@ -117,28 +117,29 @@ float randf(t_random *random)
     return ((float)MWC64X_NextUint(&random->state)/2147483648.0f/2.0f);
 }
 
-float3 rand_point_on_hemisphere(t_random *random)
+float3 rand_point_on_hemisphere(float r1, float r2)
 {
-    float3 result;
-    float theta;
-    float phi;
+    // float3 result;
+    // float theta;
+    // float phi;
     
-    theta = randf(random)*2.0f*M_PI_F;
-    phi = randf(random)*(M_PI_F/2.0f);
+    // theta = randf(random)*2.0f*M_PI_F;
+    // phi = randf(random)*(M_PI_F/2.0f);
+    // // phi = randf(random)*(M_PI_F);
 
-    result = (float3){
-        sin(theta) * cos(phi),
-        cos(theta),
-        sin(theta) * sin(phi)
-    };
-    return (result);
-    // float r1 = randf(random)*2.0f*M_PI_F;
-    // float r2 = randf(random)*(M_PI_F/2.0f);
-    // float sinTheta = sqrt(1 - r1 * r1); 
-    // float phi = 2 * M_PI_F * r2; 
-    // float x = sinTheta * cos(phi); 
-    // float z = sinTheta * sin(phi);
-    // return (float3){x, r1, z}; 
+    // result = (float3){
+    //     sin(theta) * cos(phi),
+    //     cos(theta),
+    //     sin(theta) * sin(phi)
+    // };
+    // printf("%d\n", result.z < 0.0f);
+    // return (result);
+    float sinTheta = sqrt(1 - r1 * r1); 
+    float phi = 2 * M_PI_F * r2; 
+    float x = sinTheta * cos(phi); 
+    float z = sinTheta * sin(phi);
+    // printf("Vector((%f, %f, %f))\n", x, r1, z);
+    return (float3){x, r1, z}; 
 }
 
 
