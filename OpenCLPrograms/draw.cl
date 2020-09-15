@@ -31,9 +31,9 @@ float3 get_pixel(t_screen *screen)
     float3 color;
 
     uint index = (screen->geometry.x * screen->current_y + screen->current_x) * color_count;
-    color = (float3){(float)screen->image_array[index]/255.0f,
+    color = (float3){(float)screen->image_array[index + 2]/255.0f,
                      (float)screen->image_array[index + 1]/255.0f,
-                     (float)screen->image_array[index + 2]/255.0f};
+                     (float)screen->image_array[index]/255.0f};
     return (color);
 }
 
@@ -146,7 +146,7 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
     t_intersection intersection;
     __global t_sphere *sphere;
     __global t_plane *plane;
-    const int max_indirect_rays = 256;
+    const int max_indirect_rays = 8*2;
 
     intersection.ray = ray;
     intersection.ray.max_dist = 500.0f;
@@ -154,7 +154,7 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
     {
         // float3 surface_color = get_surface_color(&intersection, scene);
         float3 direct_light_contribution = get_direct_light_contribution(&intersection, scene);
-        float3 indirect_light_contribution;
+        float3 indirect_light_contribution = (float3){0.0f, 0.0f, 0.0f};
         float3 result;
         // if(total_GI_rays == 0)
         //     ;
@@ -164,7 +164,9 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
         while(index > 0)
         {
             float r1 = randf(random);
+            // r1 = clamp(r1, 0.0f, 1.0f);
             float r2 = randf(random);
+            // r2 = clamp(r2, 0.0f, 1.0f);
             float3 sample = rand_point_on_hemisphere(r1, r2);
             float3 world_sample = to_world_coordinates(intersection.normal, sample);
             t_intersection bounce_intersection;
@@ -175,7 +177,11 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
             if(intersect(scene, &bounce_intersection))
             {
                 
-                float3 sample_color = get_surface_color(&bounce_intersection, scene);
+                // float3 sample_color = get_surface_color(&bounce_intersection, scene);
+                float3 sample_color = get_direct_light_contribution(&bounce_intersection, scene) * ((float3){1.0f, 1.0f, 1.0f} - get_surface_material(&bounce_intersection, scene).color);
+                // if(sample_color.x == NAN || sample_color.y == NAN || sample_color.z == NAN)
+
+                // printf("%f\n", sample_color.y);
                 // float3 sample_color = (float3){1.0f, 1.0f, 1.0f} - get_surface_material(&bounce_intersection, scene).color;
                 
                 // if(mat.is_emissive)
@@ -190,17 +196,19 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
                 // }
             }
             else
-                ;
+                indirect_light_contribution += r1 * (float3){0.0f, 0.0f, 0.0f};
             index--;
         }
-        indirect_light_contribution /= (float)max_indirect_rays * (1.0f / (2.0f * M_PI_F)); 
-        result = (indirect_light_contribution + direct_light_contribution) * ((float3){1.0f, 1.0f, 1.0f} - mat.color)/ M_PI_F;
+        const float pdf =  (1.0f / (2.0f * M_PI_F));
+        indirect_light_contribution /= (float)max_indirect_rays;
+        direct_light_contribution *= (float3){1.0f, 1.0f, 1.0f} - mat.color; 
+        result = (indirect_light_contribution + direct_light_contribution) / M_PI_F;
         result = clamp(result, 0.0f, 1.0f);
-        // float3 prev_radiance = get_pixel(screen);
-        // result = lerp(prev_radiance, result, 0.1f);
+        float3 prev_radiance = get_pixel(screen);
+        result = lerp(prev_radiance, result, 1.0f/8.0f);
         
-        indirect_light_contribution = clamp(indirect_light_contribution, 0.0f, 1.0f);
-        set_pixel(screen, indirect_light_contribution);
+        // indirect_light_contribution = clamp(indirect_light_contribution, 0.0f, 1.0f);
+        set_pixel(screen, result);
     }
     else
         set_pixel(screen, (float3){0.0f, 0.0f, 0.0f});

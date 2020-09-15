@@ -104,6 +104,7 @@ int randi(t_random *random)
     // uint result = random->global_id.y ^ (random->global_id.y >> 19) ^ (t ^ (t >> 8));
     // random->iteration++;
     // return (random->array[result%random->size]);
+    return (1);
 }
 
 float randf(t_random *random)
