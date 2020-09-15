@@ -201,12 +201,14 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
         }
         const float pdf =  (1.0f / (2.0f * M_PI_F));
         indirect_light_contribution /= (float)max_indirect_rays;
+        indirect_light_contribution = clamp(indirect_light_contribution, 0.0f, 1.0f);
         direct_light_contribution *= (float3){1.0f, 1.0f, 1.0f} - mat.color; 
+        direct_light_contribution = clamp(direct_light_contribution, 0.0f, 1.0f);
         result = (indirect_light_contribution + direct_light_contribution) / M_PI_F;
-        result = clamp(result, 0.0f, 1.0f);
+        
         float3 prev_radiance = get_pixel(screen);
         result = lerp(prev_radiance, result, 1.0f/8.0f);
-        
+        result = clamp(result, 0.0f, 1.0f);
         // indirect_light_contribution = clamp(indirect_light_contribution, 0.0f, 1.0f);
         set_pixel(screen, result);
     }
