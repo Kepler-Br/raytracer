@@ -183,7 +183,7 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 	SDL_assert((raytracing_state = malloc(sizeof(t_raytracing_state))) != NULL);
 	state->instance_struct = (void *)raytracing_state;
 
-	raytracing_state->framebuffer = construct_framebuffer(ivec2_scalar_div(&sdl_instance->resolution, 1), sdl_instance);
+	raytracing_state->framebuffer = construct_framebuffer(ivec2_scalar_div(&sdl_instance->resolution, 3), sdl_instance);
 	raytracing_state->sdl_instance = sdl_instance;
 	raytracing_state->input_manager = input_manager;
 	raytracing_state->mainloop = mainloop;
