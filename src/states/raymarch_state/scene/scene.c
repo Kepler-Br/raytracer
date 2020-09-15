@@ -43,26 +43,6 @@ static void private_cache_planes(t_scene_items *this)
     }
 }
 
-static void private_cache_cubes(t_scene_items *this)
-{
-	t_double_linked_list *itr;
-	t_shape_cube *cube;
-	size_t index;
-
-	free(this->cached_planes);
-	this->cube_cache_size = double_ll_len(this->cubes);
-	SDL_assert((this->cached_cubes = malloc(sizeof(t_shape_cube) * this->cube_cache_size)) != NULL);
-	itr = double_ll_back(this->cubes);
-	index = 0;
-	while(index < this->cube_cache_size)
-	{
-		cube = (*(t_shape **)itr->content)->inhereted;
-		this->cached_cubes[index] = *cube;
-		itr = itr->next;
-		index++;
-	}
-}
-
 static void private_cache_point_lights(t_scene_items *this)
 {
     t_double_linked_list *itr;
@@ -156,7 +136,6 @@ static void cache_full(t_scene_items *this)
     private_cache_point_lights(this);
     private_cache_spheres(this);
     private_cache_planes(this);
-    private_cache_cubes(this);
     private_cache_shapes(this);
     private_cache_materials(this);
 }
@@ -181,17 +160,6 @@ static void add_point_light(t_scene_items *this, t_point_light *point_light, cha
 //    else if (shape_type == SHAPE_PLANE)
 //        double_ll_push_front((void *)shape, sizeof(t_shape **), &this->planes, NULL);
 //}
-
-static void add_cube(struct s_scene_items *this, t_shape_cube *cube, char *name)
-{
-	t_shape *shape;
-
-	SDL_assert((shape = malloc(sizeof(t_shape))) != NULL);
-	shape->shape_type = SHAPE_CUBE;
-	shape->name = ft_strdup(name);
-	shape->inhereted = (void *)cube;
-	double_ll_push_front((void *)&shape, sizeof(t_shape **), &this->cubes, NULL);
-}
 
 static void add_sphere(t_scene_items *this, t_shape_sphere *sphere, char *name)
 {
@@ -237,29 +205,6 @@ static void private_update_cache_planes(t_scene_items *this)
     }
 }
 
-static void private_update_cache_cubes(t_scene_items *this)
-{
-	size_t cache_len;
-	t_double_linked_list *itr;
-	t_shape_cube *cube;
-	size_t index;
-
-	cache_len = double_ll_len(this->cubes);
-	if(cache_len != this->cube_cache_size)
-	{
-		this->cache(this, SHAPE_CUBE);
-		return;
-	}
-	index = 0;
-	itr = double_ll_back(this->cubes);
-	while(index < cache_len)
-	{
-		cube = (*(t_shape **)itr->content)->inhereted;
-		this->cached_cubes[index] = *cube;
-		index++;
-	}
-}
-
 static void private_update_cache_spheres(t_scene_items *this)
 {
     size_t cache_len;
@@ -274,7 +219,7 @@ static void private_update_cache_spheres(t_scene_items *this)
         return;
     }
     index = 0;
-	itr = this->spheres;
+    itr = this->spheres;
     while(index < cache_len)
     {
         sphere = (t_shape_sphere *)(*(t_shape **)itr->content)->inhereted;
@@ -314,8 +259,6 @@ static void update_cache(t_scene_items *this, int shape_type)
         private_update_cache_spheres(this);
     else if(shape_type == SHAPE_POINT_LIGHT)
         private_update_cache_point_ligths(this);
-    else if(shape_type == SHAPE_CUBE)
-		private_update_cache_cubes(this);
 }
 
 static int private_destroy_shape_by_name(char *name, t_double_linked_list **shape_list)
@@ -347,10 +290,8 @@ static void destroy_shape(t_scene_items *this, char *name)
 {
     if(private_destroy_shape_by_name(name, &this->planes))
         return;
-	if(private_destroy_shape_by_name(name, &this->spheres))
-		return;
-	if(private_destroy_shape_by_name(name, &this->cubes))
-		return;
+    if(private_destroy_shape_by_name(name, &this->spheres))
+        return;
     if(private_destroy_shape_by_name(name, &this->point_lights))
         return;
 }
@@ -359,8 +300,7 @@ static void destroy_similar_shapes(struct s_scene_items *this, char *name)
 {
     while(private_destroy_shape_by_name(name, &this->planes));
     while(private_destroy_shape_by_name(name, &this->spheres));
-	while(private_destroy_shape_by_name(name, &this->point_lights));
-	while(private_destroy_shape_by_name(name, &this->cubes));
+    while(private_destroy_shape_by_name(name, &this->point_lights));
 }
 
 static void private_list_shape_list(t_double_linked_list *shape_list)
@@ -397,10 +337,8 @@ static void list(t_scene_items *this)
     private_list_shape_list(this->planes);
     ft_putstr("Spheres: \n");
     private_list_shape_list(this->spheres);
-	ft_putstr("Cubes: \n");
-	private_list_shape_list(this->cubes);
-	ft_putstr("Point lights: \n");
-	private_list_shape_list(this->point_lights);
+    ft_putstr("Point lights: \n");
+    private_list_shape_list(this->point_lights);
     ft_putstr("Materials: \n");
     private_list_materials(this->materials);
 
@@ -418,21 +356,21 @@ void add_material(struct s_scene_items *this, t_material *material, char *name)
 
 cl_uint material_index_from_name(struct s_scene_items *this, char *name)
 {
-	t_double_linked_list *itr;
-	cl_uint index;
-	t_named_material *named_material;
+    t_double_linked_list *itr;
+    cl_uint index;
+    t_named_material *named_material;
 
-	itr = this->materials;
-	index = 0;
-	while(itr != NULL)
-	{
-		named_material = *(t_named_material **)itr->content;
-		if(ft_strequ(name, named_material->name))
-			return (index);
-		index++;
-		itr = itr->next;
-	}
-	return (0);
+    itr = this->materials;
+    index = 0;
+    while(itr != NULL)
+    {
+        named_material = *(t_named_material **)itr->content;
+        if(ft_strequ(name, named_material->name))
+            return (index);
+        index++;
+        itr = itr->next;
+    }
+    return (0);
 }
 
 void destroy_material(struct s_scene_items *this, char *name)
@@ -463,21 +401,19 @@ void destroy_material(struct s_scene_items *this, char *name)
 
 t_scene_items *construct_scene_items()
 {
-	t_scene_items *this;
+    t_scene_items *this;
 
-	SDL_assert((this = malloc(sizeof(t_scene_items))) != NULL);
+    SDL_assert((this = malloc(sizeof(t_scene_items))) != NULL);
     this->cached_materials = NULL;
     this->cached_planes = NULL;
-	this->cached_point_lights = NULL;
-	this->cached_spheres = NULL;
-	this->cached_shapes = NULL;
-	this->cached_cubes = NULL;
+    this->cached_point_lights = NULL;
+    this->cached_spheres = NULL;
+    this->cached_shapes = NULL;
 
     this->planes = NULL;
     this->spheres = NULL;
     this->point_lights = NULL;
-	this->cubes = NULL;
-	this->materials = NULL;
+    this->materials = NULL;
 
     this->plane_cache_size = 0;
     this->sphere_cache_size = 0;
@@ -489,7 +425,6 @@ t_scene_items *construct_scene_items()
 //    this->add_shape = &add_shape;
     this->add_sphere = &add_sphere;
     this->add_plane = &add_plane;
-    this->add_cube = &add_cube;
     this->destroy_shape = &destroy_shape;
     this->cache_materials = &cache_materials;
     this->destroy_similar_shapes = &destroy_similar_shapes;
@@ -499,7 +434,7 @@ t_scene_items *construct_scene_items()
     this->material_index_from_name = &material_index_from_name;
     this->destroy_material = &destroy_material;
     this->list = &list;
-	return (this);
+    return (this);
 }
 
 static void private_destroy_shape(t_double_linked_list **list)
@@ -518,7 +453,7 @@ static void private_destroy_shape(t_double_linked_list **list)
 
 void destruct_scene_items(struct s_scene_items *this)
 {
-	t_double_linked_list *itr;
+    t_double_linked_list *itr;
 
     private_destroy_shape(&this->planes);
     private_destroy_shape(&this->spheres);

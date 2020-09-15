@@ -38,8 +38,8 @@ static void			pre_render(struct s_state *this)
     ocl_set_kernel_arg(state->main_kernel, 14, sizeof(cl_int), (void *)&state->scene_items->material_cache_size);
     ocl_set_kernel_arg(state->main_kernel, 15, sizeof(cl_mem), (void *)&state->mem_shape_list);
 	ocl_set_kernel_arg(state->main_kernel, 16, sizeof(cl_int), (void *)&state->scene_items->shape_cache_size);
-	ocl_set_kernel_arg(state->main_kernel, 17, sizeof(cl_mem), (void *)&state->mem_cube_list);
-	ocl_set_kernel_arg(state->main_kernel, 18, sizeof(cl_int), (void *)&state->scene_items->cube_cache_size);
+//	ocl_set_kernel_arg(state->main_kernel, 17, sizeof(cl_mem), (void *)&state->mem_cube_list);
+//	ocl_set_kernel_arg(state->main_kernel, 18, sizeof(cl_int), (void *)&state->scene_items->cube_cache_size);
 
 }
 
@@ -183,7 +183,7 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 	SDL_assert((raytracing_state = malloc(sizeof(t_raytracing_state))) != NULL);
 	state->instance_struct = (void *)raytracing_state;
 
-	raytracing_state->framebuffer = construct_framebuffer(ivec2_scalar_div(&sdl_instance->resolution, 1), sdl_instance);
+	raytracing_state->framebuffer = construct_framebuffer(ivec2_scalar_div(&sdl_instance->resolution, 4), sdl_instance);
 	raytracing_state->sdl_instance = sdl_instance;
 	raytracing_state->input_manager = input_manager;
 	raytracing_state->mainloop = mainloop;
@@ -262,21 +262,21 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 
 
 
-	cube = malloc(sizeof(t_shape_cube));
-	cube->min = (t_vec3){{0.0f, 0.0f, 0.0f}};
-	cube->max = (t_vec3){{1.0f, 1.0f, 1.0f}};
-	cube->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "green");
-	raytracing_state->scene_items->add_cube(raytracing_state->scene_items, cube, "cube1");
-	cube = malloc(sizeof(t_shape_cube));
-	cube->min = (t_vec3){{0.0f, 0.0f, 0.0f}};
-	cube->max = (t_vec3){{1.0f, 1.0f, 1.0f}};
-	cube->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "green");
-	raytracing_state->scene_items->add_cube(raytracing_state->scene_items, cube, "cube2");
+//	cube = malloc(sizeof(t_shape_cube));
+//	cube->min = (t_vec3){{0.0f, 0.0f, 0.0f}};
+//	cube->max = (t_vec3){{1.0f, 1.0f, 1.0f}};
+//	cube->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "green");
+//	raytracing_state->scene_items->add_cube(raytracing_state->scene_items, cube, "cube1");
+//	cube = malloc(sizeof(t_shape_cube));
+//	cube->min = (t_vec3){{0.0f, 0.0f, 0.0f}};
+//	cube->max = (t_vec3){{1.0f, 1.0f, 1.0f}};
+//	cube->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "green");
+//	raytracing_state->scene_items->add_cube(raytracing_state->scene_items, cube, "cube2");
 
 	plane = malloc(sizeof(t_shape_plane));
 	plane->normal = (t_vec3){{0.0f, 1.0f, 0.0f}};
 	plane->position = (t_vec3){{0.0f, 0.0f, 0.0f}};
-	plane->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "green");
+	plane->material_index = raytracing_state->scene_items->material_index_from_name(raytracing_state->scene_items, "blue");
 	raytracing_state->scene_items->add_plane(raytracing_state->scene_items, plane, "plane1");
     plane = malloc(sizeof(t_shape_plane));
     plane->normal = (t_vec3){{0.0f, -1.0f, 0.0f}};
@@ -315,7 +315,7 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
     point_light = malloc(sizeof(t_point_light));
     point_light->color = (t_vec3){{1.0f, 1.0f, 1.0f}};
     point_light->position = (t_vec3){{5.0f, 6.0f, 0.0f}};
-    point_light->power = 2.0f;
+    point_light->power = 8.0f;
     raytracing_state->scene_items->add_point_light(raytracing_state->scene_items, point_light, "main_point_light");
 
     raytracing_state->scene_items->list(raytracing_state->scene_items);
@@ -344,8 +344,8 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
     ocl_enqueue_write_buffer(raytracing_state->commands, raytracing_state->mem_material_list, (size_t)raytracing_state->scene_items->material_cache_size*sizeof(t_material), raytracing_state->scene_items->cached_materials);
 	raytracing_state->mem_shape_list = ocl_create_buffer(raytracing_state->context, CL_MEM_READ_ONLY, (size_t)raytracing_state->scene_items->shape_cache_size*sizeof(t_opencl_shape), NULL);
 	ocl_enqueue_write_buffer(raytracing_state->commands, raytracing_state->mem_shape_list, (size_t)raytracing_state->scene_items->shape_cache_size*sizeof(t_opencl_shape), raytracing_state->scene_items->cached_shapes);
-	raytracing_state->mem_cube_list = ocl_create_buffer(raytracing_state->context, CL_MEM_READ_ONLY, (size_t)raytracing_state->scene_items->cube_cache_size*sizeof(t_shape_cube), NULL);
-	ocl_enqueue_write_buffer(raytracing_state->commands, raytracing_state->mem_cube_list, (size_t)raytracing_state->scene_items->cube_cache_size*sizeof(t_shape_cube), raytracing_state->scene_items->cached_cubes);
+//	raytracing_state->mem_cube_list = ocl_create_buffer(raytracing_state->context, CL_MEM_READ_ONLY, (size_t)raytracing_state->scene_items->cube_cache_size*sizeof(t_shape_cube), NULL);
+//	ocl_enqueue_write_buffer(raytracing_state->commands, raytracing_state->mem_cube_list, (size_t)raytracing_state->scene_items->cube_cache_size*sizeof(t_shape_cube), raytracing_state->scene_items->cached_cubes);
 
     state->pre_render = &pre_render;
 	state->render = &render;
