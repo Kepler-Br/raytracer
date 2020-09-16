@@ -78,7 +78,7 @@ static void cache_triangles(t_cache *this)
 
 	scene = this->scene;
 	free(this->cached_triangles);
-	itr = double_ll_back(scene->aabbs);
+	itr = double_ll_back(scene->triangles);
 	this->triangle_cache_size = double_ll_len(scene->triangles);
 	SDL_assert((this->cached_triangles = malloc(sizeof(t_shape_triangle) * this->triangle_cache_size)) != NULL);
 	index = 0;
@@ -188,7 +188,7 @@ static void cache_point_lights(t_cache *this)
 
 	scene = this->scene;
 	free(this->cached_point_lights);
-	itr = double_ll_back(scene->cones);
+	itr = double_ll_back(scene->point_lights);
 	this->point_light_cache_size = double_ll_len(scene->point_lights);
 	SDL_assert((this->cached_point_lights = malloc(sizeof(t_point_light) * this->point_light_cache_size)) != NULL);
 	index = 0;

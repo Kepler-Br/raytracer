@@ -88,6 +88,7 @@ typedef struct s_shape_triangle
 	t_vec3 point2;
 	t_vec3 point3;
 	t_vec3 position;
+	cl_uint material_index;
 } t_shape_triangle;
 
 typedef struct s_shape_square
@@ -97,20 +98,24 @@ typedef struct s_shape_square
 	t_vec3 point3;
 	t_vec3 point4;
 	t_vec3 position;
+	cl_uint material_index;
 } t_shape_square;
 
 typedef struct s_shape_disk
 {
 	cl_float radius;
 	t_vec3 position;
+	cl_uint material_index;
 } t_shape_disk;
 
 typedef struct s_shape_cylinder
 {
+	cl_uint material_index;
 } t_shape_cylinder;
 
 typedef struct s_shape_cone
 {
+	cl_uint material_index;
 } t_shape_cone;
 
 #endif // SHAPE_H

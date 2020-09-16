@@ -36,7 +36,6 @@ bool intersect_plane(t_scene *scene, int index, t_intersection *intersection)
     }
 
     intersection->dist = point_distance;
-    // intersection->shape = (__global void *)plane;
     intersection->shape_index = index;
     intersection->normal = plane->normal;
     intersection->shape_type = SHAPE_PLANE;
@@ -81,7 +80,6 @@ bool intersect_sphere(t_scene *scene, int index, t_intersection *intersection)
     intersection->normal = local_ray.origin + intersection->normal;
     intersection->normal = intersection->normal - sphere->position;
     intersection->normal = normalize(intersection->normal);
-    // intersection->shape = (__global void*)sphere;
     intersection->shape_index = index;
     intersection->shape_type = SHAPE_SPHERE;
     return (true);
