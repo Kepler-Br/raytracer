@@ -5,15 +5,6 @@
 #include "structs.cl"
 #include "tools.cl"
 
-float3	lerp(float3 source, float3 target, float t);
-void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray);
-float3 get_surface_color(t_intersection *intersection, t_scene *scene);
-t_material get_surface_material(t_intersection *intersection, t_scene *scene);
-void draw_plane(t_plane plane, t_scene *scene, t_screen *screen);
-void draw_sphere(t_sphere sphere, t_scene *scene, t_screen *screen);
-float3 get_pixel(t_screen *screen);
-void set_pixel(t_screen *screen, float3 color);
-
 void set_pixel(t_screen *screen, float3 color)
 {
     const uint color_count = 4;
@@ -37,20 +28,6 @@ float3 get_pixel(t_screen *screen)
     return (color);
 }
 
-void draw_sphere(t_sphere sphere, t_scene *scene, t_screen *screen)
-{
-    int material_index = sphere.material_index;
-    float3 color = scene->material_list[material_index].color;
-    set_pixel(screen, color);
-}
-
-void draw_plane(t_plane plane, t_scene *scene, t_screen *screen)
-{
-    int material_index = plane.material_index;
-    float3 color = scene->material_list[material_index].color;
-    set_pixel(screen, color);
-}
-
 t_material get_surface_material(t_intersection *intersection, t_scene *scene)
 {
     __global t_sphere *sphere;
@@ -72,22 +49,6 @@ t_material get_surface_material(t_intersection *intersection, t_scene *scene)
         material = &scene->material_list[material_index];
     }
     return (*material);
-    // if(material->is_emissive)
-    //     return (material->color);
-    // float3 intersection_position = get_intersection_position(intersection);
-    // float dist;
-    // if(is_point_visible(scene, intersection_position, point_light->position, &dist))
-    // {
-    //     float dott = dot(intersection->normal, normalize(point_light->position - intersection_position));
-    //     float3 result_color = (float3){point_light->color.x * dott * 1.0f/(dist)*point_light->power,
-    //                                    point_light->color.y * dott * 1.0f/(dist)*point_light->power,
-    //                                    point_light->color.z * dott * 1.0f/(dist)*point_light->power};
-    //     result_color = result_color - material->color;
-    //     result_color = clamp(result_color, 0.0f, 1.0f);
-    //     return (result_color);
-    // }
-    // else
-    //     return ((float3){0.0f, 0.0f, 0.0f});
 }
 
 float3 get_surface_color(t_intersection *intersection, t_scene *scene)
@@ -96,8 +57,6 @@ float3 get_surface_color(t_intersection *intersection, t_scene *scene)
 
     point_light = &scene->point_light_list[0];
     t_material material = get_surface_material(intersection, scene);
-    // if(material.is_emissive)
-    //     return (material.color);
     float3 intersection_position = get_intersection_position(intersection);
     float dist;
     if(is_point_visible(scene, intersection_position, point_light->position, &dist))
@@ -106,7 +65,7 @@ float3 get_surface_color(t_intersection *intersection, t_scene *scene)
         float3 result_color = (float3){point_light->color.x * dott * 1.0f/(dist)*point_light->power,
                                        point_light->color.y * dott * 1.0f/(dist)*point_light->power,
                                        point_light->color.z * dott * 1.0f/(dist)*point_light->power};
-        result_color = result_color - material.color;
+        result_color = result_color - (float3){1.0f, 1.0f, 1.0f} - material.albedo;
         result_color = clamp(result_color, 0.0f, 1.0f);
         return (result_color);
     }
@@ -121,6 +80,9 @@ float3 get_direct_light_contribution(t_intersection *intersection, t_scene *scen
     point_light = &scene->point_light_list[0];
     float3 intersection_position = get_intersection_position(intersection);
     float dist;
+    t_material mat = get_surface_material(intersection, scene);
+    if(mat.is_emissive)
+        return (float3){1.0f, 1.0f, 1.0f}*mat.emission_power;
     if(is_point_visible(scene, intersection_position, point_light->position, &dist))
     {
         float dott = dot(intersection->normal, normalize(point_light->position - intersection_position));
@@ -141,12 +103,22 @@ float3	lerp(float3 source, float3 target, float t)
 					 (1.0f - t) * source.z + t * target.z});
 }
 
+float3 gamma_correction(float3 color, float exposure, float gamme)
+{
+    return (float3)
+    {
+        pow(color.x * exposure, gamme),
+        pow(color.y * exposure, gamme),
+        pow(color.z * exposure, gamme)
+    };
+}
+
 void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
 {
     t_intersection intersection;
     __global t_sphere *sphere;
     __global t_plane *plane;
-    const int max_indirect_rays = 8;
+    const int max_indirect_rays = 4;
 
     intersection.ray = ray;
     intersection.ray.max_dist = 500.0f;
@@ -154,6 +126,7 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
     {
         // float3 surface_color = get_surface_color(&intersection, scene);
         float3 direct_light_contribution = get_direct_light_contribution(&intersection, scene);
+        
         float3 indirect_light_contribution = (float3){0.0f, 0.0f, 0.0f};
         float3 result;
         // if(total_GI_rays == 0)
@@ -161,6 +134,7 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
         // else
         int index = max_indirect_rays;
         t_material mat = get_surface_material(&intersection, scene);
+
         while(index > 0)
         {
             float r1 = randf(random);
@@ -176,40 +150,37 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
             
             if(intersect(scene, &bounce_intersection))
             {
-                
-                // float3 sample_color = get_surface_color(&bounce_intersection, scene);
-                float3 sample_color = get_direct_light_contribution(&bounce_intersection, scene) * ((float3){1.0f, 1.0f, 1.0f} - get_surface_material(&bounce_intersection, scene).color);
-                // if(sample_color.x == NAN || sample_color.y == NAN || sample_color.z == NAN)
-
-                // printf("%f\n", sample_color.y);
-                // float3 sample_color = (float3){1.0f, 1.0f, 1.0f} - get_surface_material(&bounce_intersection, scene).color;
-                
-                // if(mat.is_emissive)
-                // {
-                //     bounce_color += surface_color1;
-                // }
-                // else
-                // {
-                    // sample_color = dot(world_sample, intersection.normal) * sample_color;//*1.0f/get_intersection_position(&bounce_intersection);
-                    sample_color = r1 * sample_color;//*1.0f/get_intersection_position(&bounce_intersection);
+                t_material bounce_material = get_surface_material(&bounce_intersection, scene);
+                float3 sample_color = get_direct_light_contribution(&bounce_intersection, scene) * bounce_material.albedo;
+                if(bounce_material.is_emissive)
+                {
+                    indirect_light_contribution += bounce_material.albedo*bounce_material.emission_power;
+                }
+                else
+                {
+                    sample_color = r1 * sample_color;
                     indirect_light_contribution += sample_color;
-                // }
+                }
             }
             else
                 indirect_light_contribution += r1 * (float3){0.0f, 0.0f, 0.0f};
             index--;
         }
         const float pdf =  (1.0f / (2.0f * M_PI_F));
-        indirect_light_contribution /= (float)max_indirect_rays;
-        indirect_light_contribution = clamp(indirect_light_contribution, 0.0f, 1.0f);
-        direct_light_contribution *= (float3){1.0f, 1.0f, 1.0f} - mat.color; 
-        direct_light_contribution = clamp(direct_light_contribution, 0.0f, 1.0f);
+        indirect_light_contribution /= (float)max_indirect_rays/pdf;
+        // indirect_light_contribution = clamp(indirect_light_contribution, 0.0f, 1.0f);
+        direct_light_contribution *= mat.albedo;
+        indirect_light_contribution *= mat.albedo;
+        // direct_light_contribution = clamp(direct_light_contribution, 0.0f, 1.0f);
         result = (indirect_light_contribution + direct_light_contribution) / M_PI_F;
         
         float3 prev_radiance = get_pixel(screen);
-        result = lerp(prev_radiance, result, 1.0f/max_indirect_rays);
+        
         result = clamp(result, 0.0f, 1.0f);
-        // indirect_light_contribution = clamp(indirect_light_contribution, 0.0f, 1.0f);
+        result = gamma_correction(result, 1.0f, 2.2f);
+        // result *= 1000.0f;
+        result = lerp(prev_radiance, result, 1.0f/32.0f);
+        
         set_pixel(screen, result);
     }
     else
