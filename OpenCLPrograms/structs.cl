@@ -23,7 +23,11 @@ typedef struct
 
 typedef struct
 {
-    float3 color;
+    float3 albedo;
+    float metallic;
+    float specular;
+    float roughess;
+    float anisotropic;
     bool is_emissive;
 } t_material;
 
@@ -79,6 +83,7 @@ typedef struct
     float3 position;
     float3 color;
     float power;
+    float radius;
 } t_point_light;
 
 typedef struct
