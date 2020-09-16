@@ -103,7 +103,7 @@ t_mainloop *construct_mainloop(t_ivec2 resolution, const char * const title)
     this->deltatime = 1.0f;
 	this->time_since_start = 1.0f;
     this->frame_count = 0;
-    this->max_fps = 600;
+    this->max_fps = 60;
     this->fixed_update_step_time = 0.01f;
 	this->state_stack = NULL;
 
