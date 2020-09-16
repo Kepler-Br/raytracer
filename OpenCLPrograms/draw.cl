@@ -105,7 +105,7 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
     t_intersection intersection;
     __global t_sphere *sphere;
     __global t_plane *plane;
-    const int max_indirect_rays = 4;
+    const int max_indirect_rays = 300;
 
     intersection.ray = ray;
     intersection.ray.max_dist = 500.0f;
@@ -137,22 +137,22 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
             {
                 
                 // float3 sample_color = get_surface_color(&bounce_intersection, scene);
-                float3 sample_color = get_direct_light_contribution(&bounce_intersection, scene) * ((float3){1.0f, 1.0f, 1.0f} - get_surface_material(&bounce_intersection, scene).albedo);
+                float3 sample_color = get_direct_light_contribution(&bounce_intersection, scene) * (get_surface_material(&bounce_intersection, scene).albedo);
                 // if(sample_color.x == NAN || sample_color.y == NAN || sample_color.z == NAN)
 
                 // printf("%f\n", sample_color.y);
                 // float3 sample_color = (float3){1.0f, 1.0f, 1.0f} - get_surface_material(&bounce_intersection, scene).albedo;
                 
-                // if(mat.is_emissive)
-                // {
-                //     bounce_color += surface_color1;
-                // }
-                // else
-                // {
+                if(mat.is_emissive)
+                {
+                    indirect_light_contribution += (float3){1.0f, 1.0f, 1.0f};
+                }
+                else
+                {
                     // sample_color = dot(world_sample, intersection.normal) * sample_color;//*1.0f/get_intersection_position(&bounce_intersection);
                     sample_color = r1 * sample_color;//*1.0f/get_intersection_position(&bounce_intersection);
                     indirect_light_contribution += sample_color;
-                // }
+                }
             }
             else
                 indirect_light_contribution += r1 * (float3){0.0f, 0.0f, 0.0f};
@@ -160,15 +160,14 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
         }
         const float pdf =  (1.0f / (2.0f * M_PI_F));
         indirect_light_contribution /= (float)max_indirect_rays/pdf;
-        indirect_light_contribution = clamp(indirect_light_contribution, 0.0f, 1.0f);
+        // indirect_light_contribution = clamp(indirect_light_contribution, 0.0f, 1.0f);
         direct_light_contribution *= mat.albedo;
-        direct_light_contribution = clamp(direct_light_contribution, 0.0f, 1.0f);
-        result = (indirect_light_contribution + direct_light_contribution) / M_PI_F;
+        // direct_light_contribution = clamp(direct_light_contribution, 0.0f, 1.0f);
+        result = (indirect_light_contribution*mat.albedo + direct_light_contribution) / M_PI_F;
         
         float3 prev_radiance = get_pixel(screen);
-        result = lerp(prev_radiance, result, 1.0f/2.0f);
+        // result = lerp(prev_radiance, result, 1.0f/16.0f);
         result = clamp(result, 0.0f, 1.0f);
-        // indirect_light_contribution = clamp(indirect_light_contribution, 0.0f, 1.0f);
         set_pixel(screen, result);
     }
     else
