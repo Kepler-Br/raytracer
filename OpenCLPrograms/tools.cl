@@ -6,7 +6,18 @@
 enum{ MWC64X_A = 4294883355U };
 enum{ MWC64X_M = 18446383549859758079UL };
 
-
+void MWC64X_Step(mwc64x_state_t *s);
+uint MWC64X_NextUint(mwc64x_state_t *s);
+ulong MWC_AddMod64(ulong a, ulong b, ulong M);
+ulong MWC_MulMod64(ulong a, ulong b, ulong M);
+ulong MWC_PowMod64(ulong a, ulong e, ulong M);
+uint2 MWC_SeedImpl_Mod64(ulong A, ulong M, uint vecSize, uint vecOffset, ulong streamBase, ulong streamGap);
+void MWC64X_SeedStreams(mwc64x_state_t *s, ulong baseOffset, ulong perStreamOffset);
+int randi(t_random *random);
+float randf(t_random *random);
+float3 rand_point_on_hemisphere(float r1, float r2);
+void coordinate_system_from_normal(float3 n, float3 *nt, float3 *nb);
+float3 to_world_coordinates(float3 normal, float3 sample);
 
 void MWC64X_Step(mwc64x_state_t *s)
 {
@@ -104,7 +115,7 @@ int randi(t_random *random)
     // uint result = random->global_id.y ^ (random->global_id.y >> 19) ^ (t ^ (t >> 8));
     // random->iteration++;
     // return (random->array[result%random->size]);
-    return (1);
+    return (MWC64X_NextUint(&random->state));
 }
 
 float randf(t_random *random)

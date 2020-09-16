@@ -7,11 +7,13 @@
 #include "camera.h"
 #include "scene/scene.h"
 #include "../../engine/mainloop.h"
+#include "scene/cache.h"
 
 typedef struct	s_raytracing_state
 {
 	t_camera *camera;
 	t_scene_items *scene_items;
+	t_cache *cache;
 	t_input_manager *input_manager;
 	t_mainloop *mainloop;
 	t_sdl_instance *sdl_instance;
@@ -32,9 +34,15 @@ typedef struct	s_raytracing_state
 
 	cl_mem mem_image;
     cl_mem mem_random_lookup;
-    cl_mem mem_sphere_list;
+
 	cl_mem mem_plane_list;
-	cl_mem mem_cube_list;
+	cl_mem mem_sphere_list;
+	cl_mem mem_aabb_list;
+	cl_mem mem_triangle_list;
+	cl_mem mem_square_list;
+	cl_mem mem_disk_list;
+	cl_mem mem_cylinder_list;
+	cl_mem mem_cone_list;
     cl_mem mem_point_light_list;
     cl_mem mem_material_list;
     cl_mem mem_shape_list;
