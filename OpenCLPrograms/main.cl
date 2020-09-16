@@ -3,6 +3,23 @@
 #include "./OpenCLPrograms/draw.cl"
 #include "./OpenCLPrograms/tools.cl"
 
+
+void construct_random(t_random *random, __global int *random_array,
+            int size, int2 host_random_number, int2 global_id);
+void construct_screen(t_screen *screen, __global char *image_array,
+            int2 screen_geometry, int x, int y);
+void construct_scene(t_scene *scene,
+                    __global t_sphere *sphere_list, int sphere_count,
+                    __global t_plane *plane_list, int plane_count,
+                    __global t_point_light *point_light_list, int point_light_count,
+                    __global t_material *material_list, int material_count,
+                    __global t_shape *shape_list, int shape_count
+                    // ,
+                    // __global t_cube *cube_list, int cube_count
+                    );
+t_ray make_ray(t_camera *cam, float2 screen_point);
+
+
 t_ray make_ray(t_camera *cam, float2 screen_point)
 {
     float3 direction;
