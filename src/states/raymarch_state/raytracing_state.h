@@ -7,11 +7,13 @@
 #include "camera.h"
 #include "scene/scene.h"
 #include "../../engine/mainloop.h"
+#include "scene/cache.h"
 
 typedef struct	s_raytracing_state
 {
 	t_camera *camera;
 	t_scene_items *scene_items;
+	t_cache *cache;
 	t_input_manager *input_manager;
 	t_mainloop *mainloop;
 	t_sdl_instance *sdl_instance;

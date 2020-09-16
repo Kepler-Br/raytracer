@@ -47,8 +47,11 @@ typedef struct s_cache
 	void (*cache_cylinders)(struct s_cache *this);
 	void (*cache_cones)(struct s_cache *this);
 	void (*cache_point_lights)(struct s_cache *this);
+	void (*cache_materials)(struct s_cache *this);
+	void (*cache_shapes)(struct s_cache *this);
+	void (*cache)(struct s_cache *this);
 } t_cache;
 
-t_cache *construct_cache();
+t_cache *construct_cache(t_scene_items *scene);
 
 #endif //RAYTRACER_CACHE_H

@@ -1,7 +1,6 @@
 #include "cache.h"
 #include "double_linked_list.h"
 #include "SDL2/SDL.h"
-#include "libft.h"
 #include "scene.h"
 
 static void cache_planes(t_cache *this)
@@ -202,6 +201,68 @@ static void cache_point_lights(t_cache *this)
 	}
 }
 
+static void p_write_cache_shape(t_cache *this, cl_int *total_index, cl_int shape_type, cl_int cache_size)
+{
+	cl_int index;
+	t_opencl_shape ocl_shape;
+
+	index = 0;
+	ocl_shape.shape_type = shape_type;
+	while(index < cache_size)
+	{
+		ocl_shape.shape_index = index;
+		this->cached_shapes[*total_index] = ocl_shape;
+		index++;
+		(*total_index)++;
+	}
+}
+
+static void cache_shapes(t_cache *this)
+{
+
+	cl_int total_index;
+
+	this->shape_cache_size = this->plane_cache_size + this->sphere_cache_size +
+			this->aabb_cache_size + this->triangle_cache_size +
+			this->square_cache_size + this->disk_cache_size +
+			this->cylinder_cache_size + this->cone_cache_size +
+			this->point_light_cache_size;
+	free(this->cached_shapes);
+	SDL_assert((this->cached_shapes = malloc(sizeof(t_opencl_shape)*this->shape_cache_size)) != NULL);
+	total_index = 0;
+	p_write_cache_shape(this, &total_index, SHAPE_PLANE, this->plane_cache_size);
+	p_write_cache_shape(this, &total_index, SHAPE_SPHERE, this->sphere_cache_size);
+	p_write_cache_shape(this, &total_index, SHAPE_AABB, this->aabb_cache_size);
+	p_write_cache_shape(this, &total_index, SHAPE_TRIANGLE, this->triangle_cache_size);
+	p_write_cache_shape(this, &total_index, SHAPE_SQUARE, this->square_cache_size);
+	p_write_cache_shape(this, &total_index, SHAPE_DISK, this->disk_cache_size);
+	p_write_cache_shape(this, &total_index, SHAPE_CYLINDER, this->cylinder_cache_size);
+	p_write_cache_shape(this, &total_index, SHAPE_CONE, this->cone_cache_size);
+	p_write_cache_shape(this, &total_index, SHAPE_POINT_LIGHT, this->point_light_cache_size);
+}
+
+static void cache_materials(t_cache *this)
+{
+	t_double_linked_list *itr;
+	t_named_material *named_material;
+	size_t index;
+	t_scene_items *scene;
+
+	scene = this->scene;
+	free(this->cached_materials);
+	itr = double_ll_back(scene->materials);
+	this->material_cache_size = double_ll_len(scene->materials);
+	SDL_assert((this->cached_materials = malloc(sizeof(t_material) * this->material_cache_size)) != NULL);
+	index = 0;
+	while(index < this->material_cache_size)
+	{
+		named_material = *(t_named_material **)itr->content;
+		this->cached_materials[index] = *((t_material *)named_material->material);
+		itr = itr->next;
+		index++;
+	}
+}
+
 static void cache(t_cache *this)
 {
 	this->cache_planes(this);
@@ -213,6 +274,8 @@ static void cache(t_cache *this)
 	this->cache_cylinders(this);
 	this->cache_cones(this);
 	this->cache_point_lights(this);
+	this->cache_materials(this);
+	this->cache_shapes(this);
 }
 
 t_cache *construct_cache(t_scene_items *scene)
@@ -254,5 +317,8 @@ t_cache *construct_cache(t_scene_items *scene)
 	object->cache_cylinders = &cache_cylinders;
 	object->cache_cones = &cache_cones;
 	object->cache_point_lights = &cache_point_lights;
+	object->cache_materials = &cache_materials;
+	object->cache_shapes = &cache_shapes;
+	object->cache = &cache;
 	return (object);
 }
