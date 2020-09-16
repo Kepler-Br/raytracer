@@ -218,6 +218,15 @@ static void temp_add_materials(t_raytracing_state *raytracing_state)
 	material->specular = 0.0f;
 	material->is_emissive = CL_FALSE;
 	raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "red");
+
+	material = malloc(sizeof(t_material));
+	material->albedo = (t_vec3){{1.0f, 1.0f, 1.0f}};
+	material->anisotropic = 0.0f;
+	material->metallic = 0.0f;
+	material->roughess = 0.0f;
+	material->specular = 0.0f;
+	material->is_emissive = CL_TRUE;
+	raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "emissive");
 }
 
 static void temp_add_shapes(t_raytracing_state *raytracing_state)
@@ -233,7 +242,7 @@ static void temp_add_shapes(t_raytracing_state *raytracing_state)
 	raytracing_state->scene_items->add_shape(raytracing_state->scene_items, sphere, SHAPE_SPHERE, "center_sphere");
 
 	sphere = malloc(sizeof(t_shape_sphere));
-	sphere->material_index = raytracing_state->scene_items->get_material_index(raytracing_state->scene_items, "purple");
+	sphere->material_index = raytracing_state->scene_items->get_material_index(raytracing_state->scene_items, "emissive");
 	sphere->position = (t_vec3){{0.0f, 1.0f, 0.0f}};
 	sphere->radius = 1.0f;
 	raytracing_state->scene_items->add_shape(raytracing_state->scene_items, sphere, SHAPE_SPHERE, "floor_sphere");
