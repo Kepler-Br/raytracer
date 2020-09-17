@@ -22,6 +22,8 @@ typedef struct
     float brightness;
     float lerp_coefficient;
     uint spp;
+    bool only_direct;
+    bool only_indirect;
 } t_render_options;
 
 typedef struct
