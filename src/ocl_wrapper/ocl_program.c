@@ -27,6 +27,14 @@ static void build_program(cl_program program, cl_device_id device, char *program
 			ft_putendl("No logs provided.");
 		exit(1);
 	}
+	clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, NULL, NULL, &info_size);
+	if(info_size != 0)
+	{
+		buf = malloc(sizeof(char)*info_size);
+		clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG, info_size,buf,NULL);
+		ft_putendl(buf);
+		free(buf);
+	}
 }
 
 cl_program			ocl_load_and_build_program(cl_context context, cl_device_id device, char *program_path)

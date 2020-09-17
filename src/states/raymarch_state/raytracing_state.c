@@ -65,7 +65,7 @@ static void			render(struct s_state *this)
 	t_raytracing_state *state;
     state = (t_raytracing_state *)this->instance_struct;
 
-    ocl_enqueue_nd_range_kernel(state->commands, state->main_kernel, 2, state->global_work_size, state->local_work_size);
+    ocl_enqueue_nd_range_kernel(state->commands, state->main_kernel, 2, state->global_work_size, NULL);
 }
 
 static void			post_render(struct s_state *this)
@@ -95,6 +95,7 @@ static void			update(struct s_state *this, float deltatime)
 		state->camera_look_angle.x -= M_PI*2;
 	if (state->camera_look_angle.x < -M_PI*2)
 		state->camera_look_angle.x += M_PI*2;
+
 //    camera_look_at(state->camera, (t_vec3) {{5.0f, 5.0f, 5.0f}},
 //                   (t_vec3) {{0.0f, 0.0f, 0.0f}},
 //                   (t_vec3) {{0.0f, -1.0f, 0.0f}});
@@ -126,6 +127,7 @@ static void			fixed_update(struct s_state *this, float deltatime)
 	t_vec3 forward = (t_vec3){{cosf(state->camera_look_angle.x) * sinf(state->camera_look_angle.y),
 								cosf(state->camera_look_angle.y),
                                 sinf(state->camera_look_angle.x) * sinf(state->camera_look_angle.y)}};
+
 	t_vec3 right = vec3_vec3_cross_val((t_vec3){{0.0f, 1.0f, 0.0f}}, forward);
 	t_vec3 up = vec3_vec3_cross_val(right, forward);
     forward = vec3_vec3_sum_val(forward, state->camera_position);
@@ -212,6 +214,15 @@ static void temp_add_materials(t_raytracing_state *raytracing_state)
     raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "green");
 
 	material = malloc(sizeof(t_material));
+	material->albedo = (t_vec3){{0.0f, 0.0f, 1.0f}};
+	material->anisotropic = 0.0f;
+	material->metallic = 0.0f;
+	material->roughess = 0.0f;
+	material->specular = 0.0f;
+	material->is_emissive = CL_FALSE;
+	raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "blue");
+
+	material = malloc(sizeof(t_material));
 	material->albedo = (t_vec3){{1.0f, 0.0f, 1.0f}};
 	material->anisotropic = 0.0f;
 	material->metallic = 0.0f;
@@ -237,7 +248,7 @@ static void temp_add_materials(t_raytracing_state *raytracing_state)
 	material->roughess = 0.0f;
 	material->specular = 0.0f;
 	material->is_emissive = CL_TRUE;
-	material->emission_power = 1000.0f;
+	material->emission_power = 10.0f;
 	raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "emissive");
 }
 
@@ -271,12 +282,20 @@ static void temp_add_shapes(t_raytracing_state *raytracing_state)
 	plane->normal = (t_vec3){{0.0f, 1.0f, 0.0f}};
 	raytracing_state->scene_items->add_shape(raytracing_state->scene_items, plane, SHAPE_PLANE, "floor_plane");
 
+	plane = malloc(sizeof(t_shape_plane));
+	plane->material_index = raytracing_state->scene_items->get_material_index(raytracing_state->scene_items, "blue");
+	plane->position = (t_vec3){{0.0f, 8.0f, 0.0f}};
+	plane->normal = (t_vec3){{0.0f, -1.0f, 0.0f}};
+	raytracing_state->scene_items->add_shape(raytracing_state->scene_items, plane, SHAPE_PLANE, "ceiling_plane");
+
     point_light = malloc(sizeof(t_point_light));
     point_light->color = (t_vec3){{1.0f, 1.0f, 1.0f}};
-    point_light->position = (t_vec3){{5.0f, 6.0f, 0.0f}};
+    point_light->position = (t_vec3){{5.0f, 1.0f, 0.0f}};
     point_light->power = 0.0f;
     raytracing_state->scene_items->add_shape(raytracing_state->scene_items, point_light, SHAPE_POINT_LIGHT, "main_point_light");
 }
+
+
 
 t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_instance *sdl_instance, t_mainloop *mainloop)
 {
@@ -289,12 +308,14 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 	SDL_assert((raytracing_state = malloc(sizeof(t_raytracing_state))) != NULL);
 	state->instance_struct = (void *)raytracing_state;
 
-	raytracing_state->framebuffer = construct_framebuffer(ivec2_scalar_div(&sdl_instance->resolution, 2), sdl_instance);
+	raytracing_state->framebuffer = construct_framebuffer(ivec2_scalar_div(&sdl_instance->resolution, 2
+	), sdl_instance);
 	raytracing_state->sdl_instance = sdl_instance;
 	raytracing_state->input_manager = input_manager;
 	raytracing_state->mainloop = mainloop;
 
-    raytracing_state->camera_look_angle = (t_vec2){{0.0f, 0.0f}};
+	raytracing_state->camera_look_angle.x = -2.0676674;
+	raytracing_state->camera_look_angle.y = 2.176998;
     raytracing_state->camera_position = (t_vec3){{5.0f, 5.0f, 5.0}};
     SDL_assert((raytracing_state->global_work_size = malloc(sizeof(size_t)*2)) != NULL);
     SDL_assert((raytracing_state->local_work_size = malloc(sizeof(size_t)*2)) != NULL);
@@ -305,8 +326,8 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
                    (t_vec3) {{0.0f, -1.0f, 0.0f}});
     raytracing_state->global_work_size[0] = raytracing_state->framebuffer->resolution.x;
     raytracing_state->global_work_size[1] = raytracing_state->framebuffer->resolution.y;
-    raytracing_state->local_work_size[0] = 10;
-    raytracing_state->local_work_size[1] = 10;
+//    raytracing_state->local_work_size[0] = 10;
+//    raytracing_state->local_work_size[1] = 10;
     size_t lookup_random_size = raytracing_state->framebuffer->resolution.x * raytracing_state->framebuffer->resolution.y;
 	raytracing_state->random_lookup_size = lookup_random_size;
 	SDL_assert((raytracing_state->random_lookup = malloc(sizeof(cl_int) * lookup_random_size)) != NULL);
@@ -327,6 +348,7 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
 	raytracing_state->cache->cache(raytracing_state->cache);
 
 	raytracing_state->device_id = ocl_get_device(OCL_WRAPPER_MAX_COMPUTE_UNITS);
+//	raytracing_state->device_id = ocl_get_device(OCL_WRAPPER_MAX_FREQ);
 	ocl_print_device_info_full(raytracing_state->device_id);
 	raytracing_state->context = ocl_create_context(raytracing_state->device_id);
 	raytracing_state->commands = ocl_create_command_queue(raytracing_state->context, raytracing_state->device_id);
