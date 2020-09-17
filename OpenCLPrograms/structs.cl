@@ -16,6 +16,16 @@
 
 typedef struct
 {
+    float exposure;
+    float gamma;
+    float contrast;
+    float brightness;
+    float lerp_coefficient;
+    uint spp;
+} t_render_options;
+
+typedef struct
+{
     uint x;
     uint c;
 } mwc64x_state_t;
