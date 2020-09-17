@@ -17,6 +17,8 @@ typedef struct s_render_options
     cl_float brightness;
     cl_float lerp_coefficient;
     cl_uint spp;
+    cl_bool only_direct;
+    cl_bool only_indirect;
 } t_render_options;
 
 typedef struct	s_raytracing_state

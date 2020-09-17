@@ -255,13 +255,13 @@ static void temp_add_shapes(t_raytracing_state *raytracing_state)
 
 	sphere = malloc(sizeof(t_shape_sphere));
 	sphere->material_index = raytracing_state->scene_items->get_material_index(raytracing_state->scene_items, "purple");
-	sphere->position = (t_vec3){{0.0f, 2.0f, 0.0f}};
+	sphere->position = (t_vec3){{2.0f, 2.0f, -2.0f}};
 	sphere->radius = 2.0f;
 	raytracing_state->scene_items->add_shape(raytracing_state->scene_items, sphere, SHAPE_SPHERE, "center_sphere");
 
 	sphere = malloc(sizeof(t_shape_sphere));
 	sphere->material_index = raytracing_state->scene_items->get_material_index(raytracing_state->scene_items, "emissive");
-	sphere->position = (t_vec3){{0.0f, 6.0f, 0.0f}};
+	sphere->position = (t_vec3){{0.0f, 4.0f, 0.0f}};
 	sphere->radius = 1.0f;
 	raytracing_state->scene_items->add_shape(raytracing_state->scene_items, sphere, SHAPE_SPHERE, "floor_sphere");
 
