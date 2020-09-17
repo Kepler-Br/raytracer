@@ -154,7 +154,8 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
                 float3 sample_color = get_direct_light_contribution(&bounce_intersection, scene) * bounce_material.albedo;
                 if(bounce_material.is_emissive)
                 {
-                    indirect_light_contribution += bounce_material.albedo*bounce_material.emission_power;
+                    // indirect_light_contribution += bounce_material.albedo*bounce_material.emission_power;
+                    indirect_light_contribution += bounce_material.emission_power;
                 }
                 else
                 {
@@ -176,11 +177,11 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
         
         float3 prev_radiance = get_pixel(screen);
         
-        result = clamp(result, 0.0f, 1.0f);
-        result = gamma_correction(result, 1.0f, 2.2f);
+        // result = clamp(result, 0.0f, 1.0f);
+        result = gamma_correction(result, 1000.0f, 2.2f);
         // result *= 1000.0f;
-        result = lerp(prev_radiance, result, 1.0f/32.0f);
-        
+        result = lerp(prev_radiance, result, 1.0f/64.0f);
+        result = clamp(result, 0.0f, 1.0f);
         set_pixel(screen, result);
     }
     else

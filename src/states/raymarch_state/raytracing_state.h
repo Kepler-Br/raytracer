@@ -9,6 +9,16 @@
 #include "../../engine/mainloop.h"
 #include "scene/cache.h"
 
+typedef struct s_render_options
+{
+    cl_float exposure;
+    cl_float gamma;
+    cl_float contrast;
+    cl_float brightness;
+    cl_float lerp_coefficient;
+    cl_uint spp;
+} t_render_options;
+
 typedef struct	s_raytracing_state
 {
 	t_camera *camera;
