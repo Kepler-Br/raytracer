@@ -125,6 +125,7 @@ __kernel void main_kernel(
     int image_y = get_global_id(1);
     float2 screen_coordinates;
 
+
     construct_random(&random, random_array, random_array_size, random_number,
                     (int2){image_x, image_y});
 

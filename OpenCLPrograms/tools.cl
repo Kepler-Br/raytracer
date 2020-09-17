@@ -1,7 +1,7 @@
 #ifndef TOOLS_H
 #define TOOLS_H
 
-#include "tools.cl"
+#include "structs.cl"
 
 enum{ MWC64X_A = 4294883355U };
 enum{ MWC64X_M = 18446383549859758079UL };
@@ -129,6 +129,17 @@ float randf(t_random *random)
     return ((float)MWC64X_NextUint(&random->state)/2147483648.0f/2.0f);
 }
 
+float3 generate_hemisphere_with_solid_angle(t_random *random, float angle_max)
+{
+    float r1 = randf(random);
+    float r2 = randf(random);
+    return (float3){
+        cosf(2.0f * M_PI_F * r1) * sqrtf(1.0f - powf(1.0f - r2 * (1.0f - cosf(angle_max)), 2.0f)),
+        sinf(2.0f * M_PI_F * r1) * sqrtf(1.0f - powf(1.0f - r2 * (1.0f - cosf(angle_max)), 2.0f)),
+        1.0f - r2 * (1.0f - cosf(angle_max))
+    };
+}
+
 float3 rand_point_on_hemisphere(float r1, float r2)
 {
     // float3 result;
@@ -174,6 +185,20 @@ float3 to_world_coordinates(float3 normal, float3 sample)
         sample.x * nb.y + sample.y * normal.y + sample.z * nt.y, 
         sample.x * nb.z + sample.y * normal.z + sample.z * nt.z
     };
+}
+
+float3 random_point_on_sphere(__global t_sphere *sphere, t_random *random)
+{
+    float r1 = randf(random);
+    float r2 = randf(random);
+    float theta = 2*M_PI_F*r1;
+    float phi = 2*M_PI_F*r2;
+
+    return (float3){
+        sinf(theta) * cosf(phi),
+        cosf(theta),
+        sinf(theta) * sin(phi)
+    } + sphere->position;
 }
 
 #endif
