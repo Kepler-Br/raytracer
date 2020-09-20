@@ -65,7 +65,7 @@ static void			render(struct s_state *this)
 	t_raytracing_state *state;
     state = (t_raytracing_state *)this->instance_struct;
 
-    ocl_enqueue_nd_range_kernel(state->commands, state->main_kernel, 2, state->global_work_size, NULL);
+    ocl_enqueue_nd_range_kernel(state->commands, state->main_kernel, 2, state->global_work_size, state->local_work_size);
 }
 
 static void			post_render(struct s_state *this)
@@ -326,8 +326,8 @@ t_state		*construct_raytracing_state(t_input_manager *input_manager, t_sdl_insta
                    (t_vec3) {{0.0f, -1.0f, 0.0f}});
     raytracing_state->global_work_size[0] = raytracing_state->framebuffer->resolution.x;
     raytracing_state->global_work_size[1] = raytracing_state->framebuffer->resolution.y;
-//    raytracing_state->local_work_size[0] = 10;
-//    raytracing_state->local_work_size[1] = 10;
+    raytracing_state->local_work_size[0] = 10;
+    raytracing_state->local_work_size[1] = 10;
     size_t lookup_random_size = raytracing_state->framebuffer->resolution.x * raytracing_state->framebuffer->resolution.y;
 	raytracing_state->random_lookup_size = lookup_random_size;
 	SDL_assert((raytracing_state->random_lookup = malloc(sizeof(cl_int) * lookup_random_size)) != NULL);

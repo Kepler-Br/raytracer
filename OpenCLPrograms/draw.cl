@@ -146,7 +146,7 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
     t_intersection intersection;
     __global t_sphere *sphere;
     __global t_plane *plane;
-    const int max_indirect_rays = 1;
+    const int max_indirect_rays = 30;
     const int max_bounce = 2;
     float3 colors[max_bounce];
     t_intersection intersections[max_bounce];
@@ -202,7 +202,7 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
             intersections[0] = intersection;
 
             light_contribution += emit_rays(&intersection, scene, random, max_indirect_rays/max_bounce);
-            light_contribution += emit_rays(&intersection, scene, random, max_indirect_rays);
+            // light_contribution += emit_rays(&intersection, scene, random, max_indirect_rays);
         }
         const float pdf =  (1.0f / (2.0f * M_PI_F));
         light_contribution /= (float)max_indirect_rays/pdf;
@@ -213,7 +213,7 @@ void draw_scene(t_scene *scene, t_screen *screen, t_random *random, t_ray ray)
         
         result = gamma_correction(result, 5000.0f, 2.2f);
         float3 prev_radiance = get_pixel(screen);
-        // result = lerp(prev_radiance, result, 1.0f/15.0f);
+        result = lerp(prev_radiance, result, 1.0f/15.0f);
         result = clamp(result, 0.0f, 1.0f);
         set_pixel(screen, result);
     }
