@@ -205,6 +205,15 @@ static void temp_add_materials(t_raytracing_state *raytracing_state)
 	t_material *material;
 
     material = malloc(sizeof(t_material));
+    material->albedo = (t_vec3){{1.0f, 1.0f, 1.0f}};
+    material->anisotropic = 0.0f;
+    material->metallic = 0.0f;
+    material->roughess = 0.0f;
+    material->specular = 0.0f;
+    material->is_emissive = CL_FALSE;
+    raytracing_state->scene_items->add_material(raytracing_state->scene_items, material, "white");
+
+    material = malloc(sizeof(t_material));
     material->albedo = (t_vec3){{0.0f, 1.0f, 0.0f}};
     material->anisotropic = 0.0f;
     material->metallic = 0.0f;
@@ -270,23 +279,53 @@ static void temp_add_shapes(t_raytracing_state *raytracing_state)
 	sphere->radius = 2.0f;
 	raytracing_state->scene_items->add_shape(raytracing_state->scene_items, sphere, SHAPE_SPHERE, "center_sphere");
 
-	sphere = malloc(sizeof(t_shape_sphere));
-	sphere->material_index = raytracing_state->scene_items->get_material_index(raytracing_state->scene_items, "emissive");
-	sphere->position = (t_vec3){{0.0f, 4.0f, 0.0f}};
-	sphere->radius = 1.0f;
-	raytracing_state->scene_items->add_shape(raytracing_state->scene_items, sphere, SHAPE_SPHERE, "floor_sphere");
+    sphere = malloc(sizeof(t_shape_sphere));
+    sphere->material_index = raytracing_state->scene_items->get_material_index(raytracing_state->scene_items, "emissive");
+    sphere->position = (t_vec3){{0.0f, 8.0f, 0.0f}};
+    sphere->radius = 2.1f;
+    raytracing_state->scene_items->add_shape(raytracing_state->scene_items, sphere, SHAPE_SPHERE, "lamp1_sphere");
+
+    sphere = malloc(sizeof(t_shape_sphere));
+    sphere->material_index = raytracing_state->scene_items->get_material_index(raytracing_state->scene_items, "emissive");
+    sphere->position = (t_vec3){{5.0f, 8.0f, 0.0f}};
+    sphere->radius = 2.1f;
+    raytracing_state->scene_items->add_shape(raytracing_state->scene_items, sphere, SHAPE_SPHERE, "lamp2_sphere");
 
 	plane = malloc(sizeof(t_shape_plane));
-	plane->material_index = raytracing_state->scene_items->get_material_index(raytracing_state->scene_items, "red");
+	plane->material_index = raytracing_state->scene_items->get_material_index(raytracing_state->scene_items, "white");
 	plane->position = (t_vec3){{0.0f, 0.0f, 0.0f}};
 	plane->normal = (t_vec3){{0.0f, 1.0f, 0.0f}};
 	raytracing_state->scene_items->add_shape(raytracing_state->scene_items, plane, SHAPE_PLANE, "floor_plane");
 
-	plane = malloc(sizeof(t_shape_plane));
-	plane->material_index = raytracing_state->scene_items->get_material_index(raytracing_state->scene_items, "blue");
-	plane->position = (t_vec3){{0.0f, 8.0f, 0.0f}};
-	plane->normal = (t_vec3){{0.0f, -1.0f, 0.0f}};
-	raytracing_state->scene_items->add_shape(raytracing_state->scene_items, plane, SHAPE_PLANE, "ceiling_plane");
+    plane = malloc(sizeof(t_shape_plane));
+    plane->material_index = raytracing_state->scene_items->get_material_index(raytracing_state->scene_items, "white");
+    plane->position = (t_vec3){{0.0f, 8.0f, 0.0f}};
+    plane->normal = (t_vec3){{0.0f, -1.0f, 0.0f}};
+    raytracing_state->scene_items->add_shape(raytracing_state->scene_items, plane, SHAPE_PLANE, "ceiling_plane");
+
+    plane = malloc(sizeof(t_shape_plane));
+    plane->material_index = raytracing_state->scene_items->get_material_index(raytracing_state->scene_items, "white");
+    plane->position = (t_vec3){{-8.0f, 0.0f, 0.0f}};
+    plane->normal = (t_vec3){{1.0f, 0.0f, 0.0f}};
+    raytracing_state->scene_items->add_shape(raytracing_state->scene_items, plane, SHAPE_PLANE, "back_plane");
+
+    plane = malloc(sizeof(t_shape_plane));
+    plane->material_index = raytracing_state->scene_items->get_material_index(raytracing_state->scene_items, "white");
+    plane->position = (t_vec3){{15.0f, 0.0f, 0.0f}};
+    plane->normal = (t_vec3){{-1.0f, 0.0f, 0.0f}};
+    raytracing_state->scene_items->add_shape(raytracing_state->scene_items, plane, SHAPE_PLANE, "front_plane");
+
+    plane = malloc(sizeof(t_shape_plane));
+    plane->material_index = raytracing_state->scene_items->get_material_index(raytracing_state->scene_items, "blue");
+    plane->position = (t_vec3){{0.0f, 0.0f, 8.0f}};
+    plane->normal = (t_vec3){{0.0f, 0.0f, -1.0f}};
+    raytracing_state->scene_items->add_shape(raytracing_state->scene_items, plane, SHAPE_PLANE, "left_plane");
+
+    plane = malloc(sizeof(t_shape_plane));
+    plane->material_index = raytracing_state->scene_items->get_material_index(raytracing_state->scene_items, "red");
+    plane->position = (t_vec3){{0.0f, 0.0f, -8.0f}};
+    plane->normal = (t_vec3){{0.0f, 0.0f, 1.0f}};
+    raytracing_state->scene_items->add_shape(raytracing_state->scene_items, plane, SHAPE_PLANE, "right_plane");
 
     point_light = malloc(sizeof(t_point_light));
     point_light->color = (t_vec3){{1.0f, 1.0f, 1.0f}};
